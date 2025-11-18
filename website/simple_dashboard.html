@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Comparison Tool</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .price-badge {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .amazon-card {
+            border-left: 4px solid #FF9900;
+        }
+        .flipkart-card {
+            border-left: 4px solid #1F40FB;
+        }
+        .best-price-banner {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+        .price-comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 768px) {
+            .price-comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .quick-report {
+            background: #f0f9ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        .report-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #dbeafe;
+        }
+        .report-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">🛍️ Price Comparison Tool</h1>
+            <p class="text-gray-600">Search and compare prices between Amazon and Flipkart</p>
+        </div>
+        
+        <!-- Search Form -->
+        <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md mb-8">
+            <div class="flex flex-col gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Search Product</label>
+                    <div class="flex gap-4">
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            placeholder="e.g., boAt Airdopes 131, Maggi, Samsung Power Bank" 
+                            class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                        <button 
+                            onclick="searchProducts()" 
+                            class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                        >
+                            🔍 Search
+                        </button>
+                    </div>
+                </div>
+                <div class="text-xs text-gray-500">
+                    Try: Samsung Power Bank, boAt Airdopes 131, Maggi, Dove Shampoo, Nivea, Himalaya, Cadbury, Harpic, Surf Excel
+                </div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="results" class="max-w-4xl mx-auto space-y-8">
+            <!-- Results will be inserted here by JavaScript -->
+        </div>
+
+        <script>
+            const API_BASE_URL = 'http://localhost:5000';
+
+            function formatCurrency(amount) {
+                return new Intl.NumberFormat('en-IN', {
+                    style: 'currency',
+                    currency: 'INR',
+                    maximumFractionDigits: 0
+                }).format(amount);
+            }
+
+            function calculateDiscount(mrp, price) {
+                if (!mrp || !price || mrp === 0) return 0;
+                return Math.round(((mrp - price) / mrp) * 100);
+            }
+
+            async function searchProducts() {
+                const searchTerm = document.getElementById('searchInput').value.trim();
+                if (!searchTerm) {
+                    alert('Please enter a product name');
+                    return;
+                }
+
+                const resultsDiv = document.getElementById('results');
+                resultsDiv.innerHTML = '<div class="text-center py-12"><div class="text-lg text-gray-600">🔍 Searching...</div></div>';
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/search?q=${encodeURIComponent(searchTerm)}`);
+                    if (!response.ok) {
+                        throw new Error(`API error: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    displayResults(data, searchTerm);
+                } catch (error) {
+                    console.error('Search error:', error);
+                    resultsDiv.innerHTML = `
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-lg">
+                            <strong>Error:</strong> ${error.message}
+                            <p class="text-sm mt-2">Make sure the API server is running on port 5000</p>
+                        </div>
+                    `;
+                }
+            }
+
+            function displayResults(data, searchTerm) {
+                const resultsDiv = document.getElementById('results');
+                
+                if (!data.results || data.results.length === 0) {
+                    resultsDiv.innerHTML = `
+                        <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 px-6 py-4 rounded-lg">
+                            <strong>No results found</strong> for "${searchTerm}"
+                            <p class="text-sm mt-2">Try searching for: Samsung Power Bank, boAt Airdopes 131, Maggi, Dove, Nivea, etc.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Whitelist of allowed products to show
+                const allowedProducts = [
+                    'Samsung 10000mAh Power Bank',
+                    'boAt Airdopes 131',
+                    'Mi 3A Fast Charger',
+                    'Dove Intense Repair Shampoo 650ml',
+                    'Nivea Soft Light Moisturizer 200ml',
+                    'Himalaya Neem Face Wash 150ml',
+                    'Cadbury Dairy Milk Silk 60g',
+                    'Nestle Maggi 12 Pack',
+                    'Harpic Bathroom Cleaner 1L',
+                    'Surf Excel Matic Detergent 2kg'
+                ];
+                
+                // Filter to show ONLY the whitelisted products
+                const filteredResults = data.results.filter(item => {
+                    const title = item['product title'];
+                    return allowedProducts.some(allowed => 
+                        title.toLowerCase().includes(allowed.toLowerCase())
+                    );
+                });
+
+                // If no whitelisted products found, show message
+                if (filteredResults.length === 0) {
+                    resultsDiv.innerHTML = `
+                        <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 px-6 py-4 rounded-lg">
+                            <strong>Product not in our comparison list</strong>
+                            <p class="text-sm mt-2">Search for: Samsung Power Bank, boAt Airdopes 131, Mi 3A, Dove Shampoo, Nivea, Himalaya, Cadbury, Maggi, Harpic, or Surf Excel</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const resultsToShow = filteredResults;
+
+                // Group results by product title and keep only ONE entry per product
+                // (the first Amazon and first Flipkart found)
+                const products = {};
+                resultsToShow.forEach(item => {
+                    const title = item['product title'];
+                    if (!products[title]) {
+                        products[title] = {
+                            amazon: null,
+                            flipkart: null,
+                            description: item['product description'] || ''
+                        };
+                    }
+                    
+                    const siteName = item['site name'].toLowerCase();
+                    // Only store if we haven't stored this platform yet
+                    if (siteName.includes('amazon') && !products[title].amazon) {
+                        products[title].amazon = item;
+                    } else if (siteName.includes('flipkart') && !products[title].flipkart) {
+                        products[title].flipkart = item;
+                    }
+                });
+
+                // Generate HTML for each product
+                let html = '';
+                Object.entries(products).forEach(([title, data]) => {
+                    const amazonData = data.amazon;
+                    const flipkartData = data.flipkart;
+                    
+                    // Create variants array
+                    const variants = [];
+                    if (amazonData) variants.push(amazonData);
+                    if (flipkartData) variants.push(flipkartData);
+
+                    if (!amazonData && !flipkartData) return;
+
+                    const amazonPrice = amazonData ? parseFloat(amazonData.price) : null;
+                    const flipkartPrice = flipkartData ? parseFloat(flipkartData.price) : null;
+
+                    // Determine best price and savings
+                    let bestPrice = null;
+                    let bestPlatform = null;
+                    let savings = 0;
+                    let savingsPercent = 0;
+
+                    if (amazonPrice && flipkartPrice) {
+                        if (amazonPrice < flipkartPrice) {
+                            bestPrice = amazonPrice;
+                            bestPlatform = 'amazon';
+                            savings = flipkartPrice - amazonPrice;
+                            savingsPercent = Math.round((savings / flipkartPrice) * 100);
+                        } else {
+                            bestPrice = flipkartPrice;
+                            bestPlatform = 'flipkart';
+                            savings = amazonPrice - flipkartPrice;
+                            savingsPercent = Math.round((savings / amazonPrice) * 100);
+                        }
+                    } else if (amazonPrice) {
+                        bestPrice = amazonPrice;
+                        bestPlatform = 'amazon';
+                    } else {
+                        bestPrice = flipkartPrice;
+                        bestPlatform = 'flipkart';
+                    }
+
+                    // Best price banner
+                    let bannerHtml = '';
+                    if (amazonPrice && flipkartPrice) {
+                        const winnerName = bestPlatform === 'amazon' ? 'Amazon' : 'Flipkart';
+                        const loserPrice = bestPlatform === 'amazon' ? flipkartPrice : amazonPrice;
+                        bannerHtml = `
+                            <div class="best-price-banner">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="text-sm opacity-90">🏆 ${winnerName} has the Best Price!</div>
+                                        <div class="text-2xl font-bold mt-2">Save ${formatCurrency(savings)} (${savingsPercent}%) by choosing ${winnerName}</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-sm opacity-90">Best Price</div>
+                                        <div class="text-3xl font-bold">${formatCurrency(bestPrice)}</div>
+                                    </div>
+                                </div>
+                                <div class="mt-4 grid grid-cols-2 gap-4">
+                                    <div class="bg-white bg-opacity-20 rounded p-3">
+                                        <div class="text-xs opacity-75">Amazon Price</div>
+                                        <div class="text-xl font-bold">${formatCurrency(amazonPrice)}</div>
+                                    </div>
+                                    <div class="bg-white bg-opacity-20 rounded p-3">
+                                        <div class="text-xs opacity-75">${winnerName === 'Flipkart' ? 'Flipkart' : 'Flipkart'} Price</div>
+                                        <div class="text-xl font-bold">${formatCurrency(flipkartPrice)}</div>
+                                    </div>
+                                </div>
+                                <div class="mt-4 text-right">
+                                    <div class="text-sm opacity-90">You Save</div>
+                                    <div class="text-2xl font-bold">${formatCurrency(savings)}</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    // Platform cards
+                    let cardsHtml = '<div class="price-comparison-grid">';
+
+                    if (amazonData) {
+                        const isBest = bestPlatform === 'amazon';
+                        cardsHtml += `
+                            <div class="amazon-card bg-yellow-50 border rounded-lg p-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-2xl">🛒</span>
+                                        <h3 class="text-lg font-bold text-gray-900">Amazon</h3>
+                                    </div>
+                                    ${isBest ? '<span class="price-badge">BEST PRICE</span>' : ''}
+                                </div>
+                                <div class="bg-white rounded p-4 mb-4">
+                                    <div class="text-xs text-gray-500 uppercase tracking-wide">PRICE</div>
+                                    <div class="text-3xl font-bold text-gray-900">${formatCurrency(amazonPrice)}</div>
+                                </div>
+                                <div class="text-sm text-gray-600">
+                                    <strong>Discount:</strong> ${calculateDiscount(amazonPrice * 1.2, amazonPrice)}% OFF
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    if (flipkartData) {
+                        const isBest = bestPlatform === 'flipkart';
+                        cardsHtml += `
+                            <div class="flipkart-card bg-blue-50 border rounded-lg p-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-2xl">📦</span>
+                                        <h3 class="text-lg font-bold text-gray-900">Flipkart</h3>
+                                    </div>
+                                    ${isBest ? '<span class="price-badge">BEST PRICE</span>' : ''}
+                                </div>
+                                <div class="bg-white rounded p-4 mb-4">
+                                    <div class="text-xs text-gray-500 uppercase tracking-wide">PRICE</div>
+                                    <div class="text-3xl font-bold text-blue-600">${formatCurrency(flipkartPrice)}</div>
+                                </div>
+                                <div class="text-sm text-gray-600">
+                                    <strong>Discount:</strong> ${calculateDiscount(flipkartPrice * 1.2, flipkartPrice)}% OFF
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    cardsHtml += '</div>';
+
+                    // Quick report
+                    let reportHtml = `
+                        <div class="quick-report">
+                            <h4 class="font-bold text-gray-900 mb-4">📊 Quick Report</h4>
+                            <div class="report-item">
+                                <span class="text-gray-700">Best Price</span>
+                                <span class="font-bold text-green-600">${formatCurrency(bestPrice)}</span>
+                            </div>
+                            <div class="report-item">
+                                <span class="text-gray-700">Price Difference</span>
+                                <span class="font-bold text-blue-600">${formatCurrency(savings)}</span>
+                            </div>
+                            ${amazonPrice && flipkartPrice ? `
+                                <div class="report-item">
+                                    <span class="text-gray-700">Cheaper Platform</span>
+                                    <span class="font-bold">${bestPlatform === 'amazon' ? 'Amazon' : 'Flipkart'} is cheaper</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+
+                    // Create a unique ID for this product's details section
+                    const productId = title.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
+                    
+                    html += `
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                            <div class="p-6">
+                                <h2 class="text-2xl font-bold text-gray-900 mb-2">${title}</h2>
+                                <p class="text-sm text-gray-600 mb-6">${data.description}</p>
+                                ${bannerHtml}
+                                ${reportHtml}
+                                
+                                <!-- View More / View Less Button -->
+                                <div class="mt-6 border-t pt-6">
+                                    <button 
+                                        onclick="toggleProductDetails('${productId}')" 
+                                        id="btn-${productId}"
+                                        class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                                    >
+                                        📊 View Detailed Report
+                                    </button>
+                                </div>
+                                
+                                <!-- Detailed Listings (Hidden by default) -->
+                                <div id="details-${productId}" class="hidden mt-6 border-t pt-6">
+                                    <h4 class="text-lg font-bold text-gray-900 mb-4">💰 Platform Comparison</h4>
+                                    ${cardsHtml}
+                                    
+                                    <h4 class="text-lg font-bold text-gray-900 mb-4 mt-6">📦 All Available Listings</h4>
+                                    <div class="space-y-4">
+                    `;
+                    
+                    // Add all variants
+                    variants.forEach((item, index) => {
+                        const platform = item['site name'].toLowerCase().includes('amazon') ? 'Amazon' : 'Flipkart';
+                        const platformIcon = platform === 'Amazon' ? '🛒' : '📦';
+                        const platformColor = platform === 'Amazon' ? 'border-orange-300 bg-orange-50' : 'border-blue-300 bg-blue-50';
+                        
+                        html += `
+                            <div class="border-2 ${platformColor} rounded-lg p-4">
+                                <div class="flex items-start justify-between mb-3">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xl">${platformIcon}</span>
+                                        <div>
+                                            <h5 class="font-bold text-gray-900">${platform}</h5>
+                                            <p class="text-xs text-gray-500">${item['site name']}</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-2xl font-bold text-blue-600">${formatCurrency(parseFloat(item.price) || 0)}</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-3 mb-3">
+                                    <div class="bg-white rounded p-2">
+                                        <div class="text-xs text-gray-500">Brand</div>
+                                        <div class="font-semibold text-gray-900">${item.brand}</div>
+                                    </div>
+                                    <div class="bg-white rounded p-2">
+                                        <div class="text-xs text-gray-500">Offer</div>
+                                        <div class="font-semibold text-gray-900">${item.offers || 'N/A'}</div>
+                                    </div>
+                                </div>
+                                
+                                ${item['combo offers'] ? `
+                                    <div class="bg-white rounded p-2 mb-3">
+                                        <div class="text-xs text-gray-500">Combo Offer</div>
+                                        <div class="font-semibold text-gray-900">${item['combo offers']}</div>
+                                    </div>
+                                ` : ''}
+                                
+                                <p class="text-sm text-gray-600">${item['product description'] || 'No description'}</p>
+                            </div>
+                        `;
+                    });
+                    
+                    html += `
+                                    </div>
+                                    <button 
+                                        onclick="toggleProductDetails('${productId}')" 
+                                        class="w-full mt-4 bg-gray-300 text-gray-900 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors font-medium"
+                                    >
+                                        ▲ View Less
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                resultsDiv.innerHTML = html;
+            }
+
+            // Toggle product details visibility
+            function toggleProductDetails(productId) {
+                const detailsDiv = document.getElementById(`details-${productId}`);
+                const btn = document.getElementById(`btn-${productId}`);
+                
+                if (detailsDiv.classList.contains('hidden')) {
+                    detailsDiv.classList.remove('hidden');
+                    // Keep the same button text and style when expanded
+                    btn.textContent = '📊 View Detailed Report';
+                } else {
+                    detailsDiv.classList.add('hidden');
+                    btn.textContent = '📊 View Detailed Report';
+                }
+            }
+
+            // Allow searching with Enter key
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchProducts();
+                }
+            });
+
+            // Focus on search input on load
+            window.addEventListener('load', function() {
+                document.getElementById('searchInput').focus();
+            });
+        </script>
+    </div>
+</body>
+</html>

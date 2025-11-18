@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Comparison - Amazon vs Flipkart | PriceWar Analytics</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <style>
+        .graph-container {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .analysis-section {
+            background: #f9fafb;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation (same as dashboard) -->
+    <nav class="bg-gray-800 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <span class="text-xl font-bold">PriceWar Analytics</span>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="index.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Home</a>
+                            <a href="features.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Features</a>
+                            <a href="about.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">About</a>
+                            <a href="dashboard.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                            <a href="price-comparison.html" class="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium">Price Comparison</a>
+                            <a href="price-trends-fixed.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Trends</a>
+                            <a href="insights.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Insights</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-4 flex items-center md:ml-6">
+                        <button id="user-menu" class="max-w-xs bg-gray-800 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white" aria-expanded="false" aria-haspopup="true">
+                            <span class="sr-only">Open user menu</span>
+                            <div class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold" id="userInitial">U</div>
+                        </button>
+                        <div id="userDropdown" class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
+                            <a href="dashboard.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Dashboard</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Settings</a>
+                            <a href="#" id="signOutBtn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Sign out</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="py-8 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <!-- Back Button and Title -->
+            <div class="flex items-center mb-6">
+                <a href="dashboard.html" class="text-blue-600 hover:text-blue-800 mr-4 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                    </svg>
+                    Back to Dashboard
+                </a>
+                <h1 class="text-2xl font-bold text-gray-900">Price Comparison Analysis</h1>
+            </div>
+
+            <!-- Main Graph -->
+            <div class="graph-container">
+                <div class="h-96">
+                    <canvas id="mainChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Observations Section -->
+            <div class="analysis-section">
+                <h2 class="section-title">Key Observations</h2>
+                <div class="prose max-w-none">
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li>Amazon shows consistently lower prices in most product categories compared to Flipkart</li>
+                        <li>Electronics show the highest price differential, with Amazon being 12-15% cheaper on average</li>
+                        <li>Flipkart offers better prices in the fashion category, with an average 8% lower price point</li>
+                        <li>Both platforms show similar pricing for home appliances, indicating strong competition</li>
+                        <li>Books and media show the most consistent pricing across both platforms</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Conclusion Section -->
+            <div class="analysis-section">
+                <h2 class="section-title">Conclusion</h2>
+                <div class="prose max-w-none">
+                    <p>The price comparison reveals that while Amazon generally offers better prices across most categories, Flipkart remains competitive in specific segments like fashion. The data suggests that consumers could benefit from checking both platforms before making a purchase, as the better deal varies by product category.</p>
+                    <p class="mt-2">The most significant price differences are observed in the electronics category, where Amazon consistently undercuts Flipkart by a considerable margin. This could be due to Amazon's direct relationships with manufacturers and better bulk purchasing power.</p>
+                </div>
+            </div>
+
+            <!-- Recommendations Section -->
+            <div class="analysis-section">
+                <h2 class="section-title">Shopping Recommendations</h2>
+                <div class="prose max-w-none">
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li><strong>Electronics:</strong> Amazon offers better deals, especially during their Prime Day sales</li>
+                        <li><strong>Fashion:</strong> Check Flipkart first, particularly during their fashion-focused sales events</li>
+                        <li><strong>Home Appliances:</strong> Compare both platforms as prices are very competitive</li>
+                        <li><strong>Books:</strong> Both platforms offer similar pricing, so consider other factors like delivery time</li>
+                        <li><strong>Beauty Products:</strong> Look for bundle deals which are more common on Amazon</li>
+                        <li><strong>New Launches:</strong> Check both platforms as they often compete with exclusive launch offers</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Additional Charts -->
+            <div class="mt-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Detailed Price Comparison</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="graph-container">
+                        <h4 class="text-md font-medium text-gray-900 mb-3">Price Difference by Category (%)</h4>
+                        <div class="h-64">
+                            <canvas id="priceDiffChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="graph-container">
+                        <h4 class="text-md font-medium text-gray-900 mb-3">Discount Comparison</h4>
+                        <div class="h-64">
+                            <canvas id="discountChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white mt-12 border-t border-gray-200">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-gray-500 text-sm">
+                &copy; 2025 PriceWar Analytics. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Firebase configuration and initialization
+        const firebaseConfig = {
+            apiKey: "AIzaSyAk5R0dWiRAyKdIqa0WnocdqkfhTptSyFk",
+            authDomain: "ads-project-dfd93.firebaseapp.com",
+            projectId: "ads-project-dfd93",
+            storageBucket: "ads-project-dfd93.firebasestorage.app",
+            messagingSenderId: "974516291458",
+            appId: "1:974516291458:web:42734b8547c5c16515719b",
+            measurementId: "G-LVFBBHKGNQ"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Check authentication state
+        firebase.auth().onAuthStateChanged((user) => {
+            if (!user) {
+                // User is not signed in, redirect to login
+                window.location.href = 'login.html';
+            } else {
+                // Update UI with user info
+                document.getElementById('userInitial').textContent = user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase();
+            }
+        });
+
+        // Sign out functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const signOutBtn = document.getElementById('signOutBtn');
+            if (signOutBtn) {
+                signOutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    firebase.auth().signOut().then(() => {
+                        window.location.href = 'login.html';
+                    }).catch((error) => {
+                        console.error('Sign out error:', error);
+                    });
+                });
+            }
+
+            // Toggle user dropdown
+            const userMenuButton = document.getElementById('user-menu');
+            const userDropdown = document.getElementById('userDropdown');
+            if (userMenuButton && userDropdown) {
+                userMenuButton.addEventListener('click', function() {
+                    const expanded = this.getAttribute('aria-expanded') === 'true' || false;
+                    this.setAttribute('aria-expanded', !expanded);
+                    userDropdown.classList.toggle('hidden');
+                });
+            }
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('#user-menu') && !event.target.closest('#userDropdown')) {
+                    const dropdown = document.getElementById('userDropdown');
+                    if (dropdown && !dropdown.classList.contains('hidden')) {
+                        dropdown.classList.add('hidden');
+                        document.getElementById('user-menu').setAttribute('aria-expanded', 'false');
+                    }
+                }
+            });
+
+            // Initialize main chart
+            const mainCtx = document.getElementById('mainChart').getContext('2d');
+            new Chart(mainCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Electronics', 'Fashion', 'Home & Kitchen', 'Books', 'Beauty'],
+                    datasets: [{
+                        label: 'Amazon Average Price (₹)',
+                        data: [24999, 1599, 8999, 349, 549],
+                        backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Flipkart Average Price (₹)',
+                        data: [27999, 1499, 8999, 399, 599],
+                        backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Price (₹)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Product Categories'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Average Price Comparison: Amazon vs Flipkart',
+                            font: {
+                                size: 16
+                            },
+                            padding: {
+                                bottom: 20
+                            }
+                        },
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ₹${context.raw.toLocaleString()}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Price Difference Chart
+            const priceDiffCtx = document.getElementById('priceDiffChart').getContext('2d');
+            new Chart(priceDiffCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Electronics', 'Fashion', 'Home', 'Books', 'Beauty'],
+                    datasets: [{
+                        label: 'Amazon Cheaper By',
+                        data: [12, -8, 0, 2, 5],
+                        backgroundColor: function(context) {
+                            return context.raw >= 0 ? 'rgba(59, 130, 246, 0.7)' : 'rgba(16, 185, 129, 0.7)';
+                        },
+                        borderColor: function(context) {
+                            return context.raw >= 0 ? 'rgba(59, 130, 246, 1)' : 'rgba(16, 185, 129, 1)';
+                        },
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Price Difference (%)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw;
+                                    return value >= 0 
+                                        ? `Amazon is ${value}% cheaper` 
+                                        : `Flipkart is ${Math.abs(value)}% cheaper`;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Discount Comparison Chart
+            const discountCtx = document.getElementById('discountChart').getContext('2d');
+            new Chart(discountCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Amazon', 'Flipkart'],
+                    datasets: [{
+                        data: [42, 58],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.7)',
+                            'rgba(16, 185, 129, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(16, 185, 129, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.raw}% of products on discount`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Title - PriceWar Analytics</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <style>
+        .graph-container {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .analysis-section {
+            background: #f9fafb;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation (same as before) -->
+    <nav class="bg-gray-800 text-white">
+        <!-- Navigation content from previous files -->
+    </nav>
+
+    <!-- Main Content -->
+    <main class="py-8 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <!-- Back Button and Title -->
+            <div class="flex items-center mb-6">
+                <a href="dashboard.html" class="text-blue-600 hover:text-blue-800 mr-4 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                    </svg>
+                    Back to Dashboard
+                </a>
+                <h1 class="text-2xl font-bold text-gray-900">Graph Title</h1>
+            </div>
+
+            <!-- Graph Container -->
+            <div class="graph-container">
+                <div class="h-96">
+                    <canvas id="mainChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Observations Section -->
+            <div class="analysis-section">
+                <h2 class="section-title">Key Observations</h2>
+                <div class="prose max-w-none">
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li>Observation 1 about the graph data</li>
+                        <li>Notable trend or pattern</li>
+                        <li>Significant data points or outliers</li>
+                        <li>Comparison between data series</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Conclusion Section -->
+            <div class="analysis-section">
+                <h2 class="section-title">Conclusion</h2>
+                <div class="prose max-w-none">
+                    <p>Summary of what the data reveals about the price war between Amazon and Flipkart. This section should provide clear insights drawn from the observations above.</p>
+                </div>
+            </div>
+
+            <!-- Recommendations Section -->
+            <div class="analysis-section">
+                <h2 class="section-title">Recommendations</h2>
+                <div class="prose max-w-none">
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li>Actionable insight based on the data</li>
+                        <li>Shopping strategy recommendation</li>
+                        <li>Category-specific advice</li>
+                        <li>Timing suggestions for purchases</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Additional Charts (if needed) -->
+            <div class="mt-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Additional Insights</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="graph-container">
+                        <h4 class="text-md font-medium text-gray-900 mb-3">Supporting Chart 1</h4>
+                        <div class="h-64">
+                            <canvas id="supportingChart1"></canvas>
+                        </div>
+                    </div>
+                    <div class="graph-container">
+                        <h4 class="text-md font-medium text-gray-900 mb-3">Supporting Chart 2</h4>
+                        <div class="h-64">
+                            <canvas id="supportingChart2"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white mt-12 border-t border-gray-200">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-gray-500 text-sm">
+                &copy; 2025 PriceWar Analytics. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Firebase configuration and initialization
+        const firebaseConfig = {
+            apiKey: "AIzaSyAk5R0dWiRAyKdIqa0WnocdqkfhTptSyFk",
+            authDomain: "ads-project-dfd93.firebaseapp.com",
+            projectId: "ads-project-dfd93",
+            storageBucket: "ads-project-dfd93.firebasestorage.app",
+            messagingSenderId: "974516291458",
+            appId: "1:974516291458:web:42734b8547c5c16515719b",
+            measurementId: "G-LVFBBHKGNQ"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Initialize charts when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Main Chart
+            const mainCtx = document.getElementById('mainChart').getContext('2d');
+            new Chart(mainCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Category 1', 'Category 2', 'Category 3', 'Category 4'],
+                    datasets: [{
+                        label: 'Amazon',
+                        data: [12, 19, 3, 5],
+                        backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Flipkart',
+                        data: [8, 15, 7, 10],
+                        backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Price (₹)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Product Categories'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Main Chart Title',
+                            font: {
+                                size: 16
+                            },
+                            padding: {
+                                bottom: 20
+                            }
+                        },
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            });
+
+            // Add code for supporting charts if needed
+        });
+    </script>
+</body>
+</html>

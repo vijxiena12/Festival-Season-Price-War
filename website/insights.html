@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Insights - Amazon vs Flipkart Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <span class="text-xl font-bold">PriceWar Analytics</span>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="index.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Home</a>
+                            <a href="dashboard.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                            <a href="price-comparison.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Price Comparison</a>
+                            <a href="price-trends.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Price Trends</a>
+                            <a href="insights.html" class="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium">Insights</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:items-center" id="auth-buttons">
+                    <div class="ml-3 relative" id="user-menu">
+                        <div>
+                            <button type="button" class="bg-white rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                                <span class="sr-only">Open user menu</span>
+                                <div id="user-initials" class="h-8 w-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-medium"></div>
+                            </button>
+                        </div>
+                        <div id="user-dropdown" class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
+                            <a href="#" id="sign-out-button" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">Sign out</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile menu -->
+    <div class="sm:hidden" id="mobile-menu">
+        <div class="pt-2 pb-3 space-y-1">
+            <a href="index.html" class="bg-indigo-50 border-indigo-500 text-indigo-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Home</a>
+            <a href="dashboard.html" class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Dashboard</a>
+            <a href="features.html" class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Features</a>
+            <a href="about.html" class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">About</a>
+        </div>
+        <div class="pt-4 pb-3 border-t border-gray-200" id="mobile-auth-buttons">
+            <div class="flex items-center px-4">
+                <div class="flex-shrink-0">
+                    <div id="mobile-user-initials" class="h-10 w-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-medium"></div>
+                </div>
+                <div class="ml-3">
+                    <div class="text-base font-medium text-gray-800" id="mobile-user-name"></div>
+                    <div class="text-sm font-medium text-gray-500" id="mobile-user-email"></div>
+                </div>
+            </div>
+            <div class="mt-3 space-y-1">
+                <a href="#" id="mobile-sign-out-button" class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100">Sign out</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="py-10">
+        <main>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Page title and back button -->
+                <div class="mb-6">
+                    <a href="dashboard.html" class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-900">
+                        <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        Back to Dashboard
+                    </a>
+                    <h1 class="text-3xl font-bold text-gray-900 mt-2">Market Insights & Analysis</h1>
+                    <p class="mt-1 text-sm text-gray-500">Comprehensive market share and category performance analysis</p>
+                </div>
+
+                <!-- Market Share Chart -->
+                <div class="bg-white shadow rounded-lg p-6 mb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Market Share by Category</h2>
+                    <div class="h-96">
+                        <canvas id="marketShareChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Category Performance Chart -->
+                <div class="bg-white shadow rounded-lg p-6 mb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Category Performance Comparison</h2>
+                    <div class="h-96">
+                        <canvas id="categoryPerformanceChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Observations Section -->
+                <div class="bg-white shadow rounded-lg p-6 mb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Key Observations</h2>
+                    <div class="prose max-w-none">
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li><strong>Category Leadership:</strong> Amazon leads in Electronics (65%) and Books (70%) categories, while Flipkart dominates Fashion (60%) and Beauty (55%).</li>
+                            <li><strong>Competitive Categories:</strong> Home & Kitchen shows the most balanced competition with 52% Amazon and 48% Flipkart market share.</li>
+                            <li><strong>Price Sensitivity:</strong> Beauty products show the highest price sensitivity to sales events, with up to 40% price drops during major sales.</li>
+                            <li><strong>Market Trends:</strong> Electronics category shows the most significant seasonal price fluctuations, while Books maintain relatively stable pricing.</li>
+                            <li><strong>Platform Strengths:</strong> Amazon's strength lies in its extensive catalog and Prime benefits, while Flipkart excels in fashion and regional reach.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Conclusion Section -->
+                <div class="bg-white shadow rounded-lg p-6 mb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Strategic Analysis</h2>
+                    <div class="prose max-w-none">
+                        <p>The market share analysis reveals distinct competitive advantages and strategic positions for each platform:</p>
+                        <ul class="list-disc pl-5 mt-2 space-y-2">
+                            <li><strong>Amazon's Ecosystem Advantage:</strong> Strong performance in Electronics and Books suggests successful ecosystem integration with services like Kindle and Alexa.</li>
+                            <li><strong>Flipkart's Fashion Focus:</strong> Dominance in Fashion indicates successful partnerships with clothing brands and effective category management.</li>
+                            <li><strong>Battleground Categories:</strong> Home & Kitchen's near-even split highlights it as a key battleground for customer acquisition and retention.</li>
+                            <li><strong>Emerging Trends:</strong> The rapid growth of private labels in both platforms is reshaping category dynamics and pricing strategies.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Recommendations Section -->
+                <div class="bg-white shadow rounded-lg p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Recommendations</h2>
+                    <div class="prose max-w-none">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <h3 class="font-medium text-blue-800 mb-2">For Consumers:</h3>
+                                <ul class="list-disc pl-5 space-y-1 text-sm text-gray-700">
+                                    <li><strong>Electronics & Books:</strong> Prioritize Amazon for better selection and ecosystem benefits</li>
+                                    <li><strong>Fashion & Beauty:</strong> Check Flipkart first, especially during their fashion-focused sales events</li>
+                                    <li><strong>Home & Kitchen:</strong> Compare both platforms as competition drives better deals</li>
+                                    <li><strong>Seasonal Shopping:</strong> Time purchases with major sales events for maximum savings</li>
+                                    <li><strong>Loyalty Programs:</strong> Leverage platform-specific benefits (Amazon Prime/Flipkart Plus) for additional savings</li>
+                                </ul>
+                            </div>
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <h3 class="font-medium text-green-800 mb-2">For Retailers & Sellers:</h3>
+                                <ul class="list-disc pl-5 space-y-1 text-sm text-gray-700">
+                                    <li><strong>Category Strategy:</strong> Align with platform strengths when choosing sales channels</li>
+                                    <li><strong>Pricing Intelligence:</strong> Implement dynamic pricing tools to stay competitive</li>
+                                    <li><strong>Inventory Planning:</strong> Anticipate demand spikes during major sales events</li>
+                                    <li><strong>Platform-Specific Promotions:</strong> Tailor marketing strategies to each platform's user base</li>
+                                    <li><strong>Private Label Opportunities:</strong> Explore private label development in high-margin categories</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Related Analysis -->
+                <div class="mt-12">
+                    <h2 class="text-lg font-medium text-gray-900 mb-4">Related Analysis</h2>
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                        <a href="price-trends.html" class="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow duration-300 border border-gray-100 hover:border-blue-200">
+                            <div class="px-4 py-5 sm:p-6">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 bg-indigo-100 rounded-md p-3">
+                                        <svg class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg leading-6 font-medium text-gray-900">Price Trends</h3>
+                                        <p class="mt-1 text-sm text-gray-500">Analyze price trends over time</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="price-comparison.html" class="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow duration-300 border border-gray-100 hover:border-blue-200">
+                            <div class="px-4 py-5 sm:p-6">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 bg-purple-100 rounded-md p-3">
+                                        <svg class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg leading-6 font-medium text-gray-900">Price Comparison</h3>
+                                        <p class="mt-1 text-sm text-gray-500">Compare prices between platforms</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="category-analysis.html" class="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow duration-300 border border-gray-100 hover:border-blue-200">
+                            <div class="px-4 py-5 sm:p-6">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
+                                        <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg leading-6 font-medium text-gray-900">Category Analysis</h3>
+                                        <p class="mt-1 text-sm text-gray-500">Detailed analysis by product category</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="max-w-7xl mx-auto py-12 px-4 overflow-hidden sm:px-6 lg:px-8">
+            <p class="mt-8 text-center text-base text-gray-400">
+                &copy; 2025 PriceWar Analytics. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize charts when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Market Share Doughnut Chart
+            const marketShareCtx = document.getElementById('marketShareChart').getContext('2d');
+            new Chart(marketShareCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Amazon', 'Flipkart', 'Others'],
+                    datasets: [{
+                        data: [58, 38, 4],
+                        backgroundColor: [
+                            'rgba(79, 70, 229, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(156, 163, 175, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(79, 70, 229, 1)',
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(156, 163, 175, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Overall E-commerce Market Share',
+                            font: {
+                                size: 16
+                            },
+                            padding: {
+                                bottom: 20
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.raw}% market share`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%',
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true
+                    }
+                }
+            });
+
+            // Category Performance Bar Chart
+            const categoryCtx = document.getElementById('categoryPerformanceChart').getContext('2d');
+            new Chart(categoryCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Electronics', 'Fashion', 'Home & Kitchen', 'Books', 'Beauty', 'Mobile Phones'],
+                    datasets: [{
+                        label: 'Amazon',
+                        data: [65, 40, 52, 70, 45, 55],
+                        backgroundColor: 'rgba(79, 70, 229, 0.7)',
+                        borderColor: 'rgba(79, 70, 229, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        barPercentage: 0.7
+                    }, {
+                        label: 'Flipkart',
+                        data: [35, 60, 48, 30, 55, 45],
+                        backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        barPercentage: 0.7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Market Share (%)',
+                                font: {
+                                    weight: 'bold'
+                                }
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Product Category',
+                                font: {
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Market Share by Product Category',
+                            font: {
+                                size: 16
+                            },
+                            padding: {
+                                bottom: 20
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.raw}% market share`;
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    animation: {
+                        duration: 1000
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

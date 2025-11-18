@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - PriceWar Analytics</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-blue-600 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="index.html" class="text-xl font-bold">PriceWar Analytics</a>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="index.html" class="border-transparent text-blue-100 hover:bg-blue-700 hover:border-blue-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Home</a>
+                        <a href="features.html" class="border-transparent text-blue-100 hover:bg-blue-700 hover:border-blue-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Features</a>
+                        <a href="about.html" class="border-transparent text-blue-100 hover:bg-blue-700 hover:border-blue-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">About</a>
+                        <a href="contact.html" class="border-blue-500 text-white hover:bg-blue-700 hover:border-blue-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" aria-current="page">Contact</a>
+                    </div>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:items-center">
+                    <a href="login.html" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Login / Sign Up</a>
+                </div>
+                <!-- Mobile menu button -->
+                <div class="-mr-2 flex items-center sm:hidden">
+                    <button type="button" id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-blue-200 hover:text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-controls="mobile-menu" aria-expanded="false">
+                        <span class="sr-only">Open main menu</span>
+                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu, show/hide based on menu state. -->
+        <div class="sm:hidden hidden" id="mobile-menu">
+            <div class="pt-2 pb-3 space-y-1">
+                <a href="index.html" class="border-transparent text-blue-100 hover:bg-blue-700 hover:border-blue-300 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Home</a>
+                <a href="features.html" class="border-transparent text-blue-100 hover:bg-blue-700 hover:border-blue-300 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Features</a>
+                <a href="about.html" class="border-transparent text-blue-100 hover:bg-blue-700 hover:border-blue-300 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">About</a>
+                <a href="contact.html" class="bg-blue-700 border-blue-500 text-white block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Contact</a>
+                <a href="login.html" class="border-transparent text-blue-100 hover:bg-blue-700 hover:border-blue-300 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Login / Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="bg-blue-700">
+        <div class="max-w-7xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">Contact Us</h1>
+            <p class="mt-6 max-w-3xl mx-auto text-xl text-blue-100">Get in touch with us or register for updates and exclusive access to our platform.</p>
+        </div>
+    </div>
+
+    <!-- Contact Form Section -->
+    <div class="py-12 bg-white">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white shadow-lg rounded-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Register for Website Access</h2>
+                <p class="text-gray-600 mb-6">Fill out the form below to register and receive updates about our platform. We'll send you an email with registration details.</p>
+                
+                <form id="contactForm" action="https://formspree.io/f/xanavpgy" method="POST" class="space-y-6">
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div>
+                            <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
+                            <input type="text" name="firstName" id="firstName" required
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="lastName" class="block text-sm font-medium text-gray-700">Last Name</label>
+                            <input type="text" name="lastName" id="lastName" required
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                        <input type="email" name="email" id="email" required
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number (Optional)</label>
+                        <input type="tel" name="phone" id="phone"
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <div>
+                        <label for="message" class="block text-sm font-medium text-gray-700">Message / Reason for Registration</label>
+                        <textarea name="message" id="message" rows="4" required
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Tell us why you're interested in registering..."></textarea>
+                    </div>
+
+                    <div class="flex items-center">
+                        <input id="agreeTerms" name="agreeTerms" type="checkbox" required
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="agreeTerms" class="ml-2 block text-sm text-gray-700">
+                            I agree to receive updates and registration information via email
+                        </label>
+                    </div>
+
+                    <div>
+                        <button type="submit"
+                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Submit Registration Request
+                        </button>
+                    </div>
+
+                    <div id="formMessage" class="hidden mt-4 p-4 rounded-md"></div>
+                </form>
+            </div>
+
+            <!-- Additional Contact Information -->
+            <div class="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-3">
+                <div class="text-center">
+                    <div class="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white mx-auto">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <h3 class="mt-4 text-lg font-medium text-gray-900">Email</h3>
+                    <p class="mt-2 text-base text-gray-500">warprice18@gmail.com</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white mx-auto">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        </svg>
+                    </div>
+                    <h3 class="mt-4 text-lg font-medium text-gray-900">Phone</h3>
+                    <p class="mt-2 text-base text-gray-500">9877100209</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white mx-auto">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="mt-4 text-lg font-medium text-gray-900">Location</h3>
+                    <p class="mt-2 text-base text-gray-500">India</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="xl:grid xl:grid-cols-3 xl:gap-8">
+                <div class="space-y-8 xl:col-span-1">
+                    <h3 class="text-white text-lg font-semibold">PriceWar Analytics</h3>
+                    <p class="text-gray-300 text-base">Helping you find the best deals during festival seasons by comparing prices across top e-commerce platforms.</p>
+                </div>
+                <div class="mt-12 grid grid-cols-2 gap-8 xl:mt-0 xl:col-span-2">
+                    <div class="md:grid md:grid-cols-2 md:gap-8">
+                        <div class="mt-12 md:mt-0">
+                            <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">Company</h3>
+                            <ul class="mt-4 space-y-4">
+                                <li>
+                                    <a href="about.html" class="text-base text-gray-300 hover:text-white">About</a>
+                                </li>
+                                <li>
+                                    <a href="features.html" class="text-base text-gray-300 hover:text-white">Features</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="md:grid md:grid-cols-2 md:gap-8">
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">Support</h3>
+                            <ul class="mt-4 space-y-4">
+                                <li>
+                                    <a href="contact.html" class="text-base text-white font-medium">Contact Us</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="mt-12 md:mt-0">
+                            <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">Register</h3>
+                            <p class="mt-4 text-base text-gray-300">Stay updated with the latest features and pricing insights.</p>
+                            <a href="contact.html" class="mt-4 inline-block text-blue-400 hover:text-blue-300">Register Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-12 border-t border-gray-700 pt-8">
+                <p class="text-base text-gray-400 text-center">&copy; 2025 PriceWar Analytics. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+
+        // Contact form handler with Formspree
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                message: document.getElementById('message').value
+            };
+            
+            const messageEl = document.getElementById('formMessage');
+            const submitButton = document.querySelector('button[type="submit"]');
+            
+            // Validate form
+            if (!formData.firstName || !formData.lastName || !formData.email || !formData.message) {
+                messageEl.textContent = 'Please fill in all required fields.';
+                messageEl.classList.remove('hidden', 'bg-green-50', 'text-green-800');
+                messageEl.classList.add('bg-red-50', 'text-red-800');
+                return;
+            }
+            
+            // Disable submit button
+            submitButton.disabled = true;
+            submitButton.textContent = 'Sending...';
+            
+            // Prepare form data for submission
+            const formDataToSend = new FormData();
+            formDataToSend.append('name', `${formData.firstName} ${formData.lastName}`);
+            formDataToSend.append('email', formData.email);
+            formDataToSend.append('phone', formData.phone || 'Not provided');
+            formDataToSend.append('message', formData.message);
+            formDataToSend.append('_subject', 'Registration Request - PriceWar Analytics');
+            
+            // Use Formspree to send email
+            fetch('https://formspree.io/f/xanavpgy', {
+                method: 'POST',
+                body: formDataToSend,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok || data.success) {
+                    // Success
+                    messageEl.textContent = 'Thank you! Your registration request has been sent successfully to warprice18@gmail.com. We will contact you soon.';
+                    messageEl.classList.remove('hidden', 'bg-red-50', 'text-red-800');
+                    messageEl.classList.add('bg-green-50', 'text-green-800');
+                    
+                    // Reset form
+                    document.getElementById('contactForm').reset();
+                } else {
+                    throw new Error('Form submission failed');
+                }
+            })
+            .catch(error => {
+                // Error
+                console.error('Form submission error:', error);
+                messageEl.textContent = 'Sorry, there was an error sending your request. Please try again later or contact us directly at warprice18@gmail.com';
+                messageEl.classList.remove('hidden', 'bg-green-50', 'text-green-800');
+                messageEl.classList.add('bg-red-50', 'text-red-800');
+            })
+            .finally(() => {
+                // Re-enable submit button
+                submitButton.disabled = false;
+                submitButton.textContent = 'Submit Registration Request';
+            });
+        });
+    </script>
+</body>
+</html>
+

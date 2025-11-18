@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - PriceWar Analytics</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+</head>
+<body class="bg-gray-100">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 text-white">
+        <div class="max-we_dash-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <span class="text-xl font-bold">PriceWar Analytics</span>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="index.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Home</a>
+                            <a href="features.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Features</a>
+                            <a href="about.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">About</a>
+                            <a href="#" class="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                            <a href="price-comparison.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Price Comparison</a>
+                            <a href="price-trends-fixed.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Trends</a>
+                            <a href="insights.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Insights</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-4 flex items-center md:ml-6">
+                        <button id="user-menu" class="max-w-xs bg-gray-800 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white" aria-expanded="false" aria-haspopup="true">
+                            <span class="sr-only">Open user menu</span>
+                            <div class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold" id="userInitial">U</div>
+                        </button>
+                        <div id="userDropdown" class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Your Profile</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Settings</a>
+                            <a href="#" id="signOutBtn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Sign out</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="-mr-2 flex md:hidden">
+                    <!-- Mobile menu button -->
+                    <button type="button" id="mobile-menu-button" class="bg-gray-800 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white" aria-controls="mobile-menu" aria-expanded="false">
+                        <span class="sr-only">Open main menu</span>
+                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <svg class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu, show/hide based on menu state. -->
+        <div class="hidden md:hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="index.html" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Home</a>
+                <a href="features.html" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Features</a>
+                <a href="about.html" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">About</a>
+                <a href="#" class="bg-gray-900 text-white block px-3 py-2 rounded-md text-base font-medium">Dashboard</a>
+                <a href="price-comparison.html" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Price Comparison</a>
+                <a href="trends.html" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Trends</a>
+                <a href="insights.html" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Insights</a>
+            </div>
+            <div class="pt-4 pb-3 border-t border-gray-700">
+                <div class="flex items-center px-5">
+                    <div class="flex-shrink-0">
+                        <div class="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold" id="mobileUserInitial">U</div>
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-base font-medium text-white" id="userName">User Name</div>
+                        <div class="text-sm font-medium text-gray-400" id="userEmail">user@example.com</div>
+                    </div>
+                </div>
+                <div class="mt-3 px-2 space-y-1">
+                    <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700">Your Profile</a>
+                    <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700">Settings</a>
+                    <a href="#" id="mobileSignOutBtn" class="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700">Sign out</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="py-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Page Title -->
+            <div class="mb-8">
+                <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+                <p class="mt-1 text-sm text-gray-500">Welcome back, <span id="welcomeName">User</span>! Here's what's happening with your data.</p>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+                <!-- Total Products -->
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
+                                <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                </svg>
+                            </div>
+                            <div class="ml-5 w-0 flex-1">
+                                <dl>
+                                    <dt class="text-sm font-medium text-gray-500 truncate">Total Products</dt>
+                                    <dd class="flex items-baseline">
+                                        <div class="text-2xl font-semibold text-gray-900">2,458</div>
+                                        <div class="ml-2 flex items-baseline text-sm font-semibold text-green-600">
+                                            <svg class="self-center flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                                                <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                            </svg>
+                                            <span class="sr-only">Increased by</span>
+                                            12%
+                                        </div>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Amazon Products -->
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-yellow-500 rounded-md p-3">
+                                <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M20.8 10.3c-.4-1-1.2-1.7-2.3-2.1.6-.7 1-1.5 1-2.4 0-1.1-.5-2-1.4-2.6-.9-.6-2.1-.9-3.5-.9h-7.3c-.2 0-.4.1-.5.2l-3.6 2.5c-.1.1-.1.2-.1.3v13.6c0 .3.2.5.5.5h5.8c.3 0 .5-.2.5-.5v-4.6c0-.3.2-.5.5-.5h2.6c.3 0 .5.2.5.5v4.6c0 .3.2.5.5.5h5.9c.3 0 .5-.2.5-.5v-9.1c0-.3 0-.6-.1-.8zm-11.8-5.1h4.1c.3 0 .5.2.5.5s-.2.5-.5.5h-4.1c-.3 0-.5-.2-.5-.5s.2-.5.5-.5zm4.1 6.8c-1.4 0-2.6-1.2-2.6-2.6s1.2-2.6 2.6-2.6 2.6 1.2 2.6 2.6-1.2 2.6-2.6 2.6z" />
+                                </svg>
+                            </div>
+                            <div class="ml-5 w-0 flex-1">
+                                <dl>
+                                    <dt class="text-sm font-medium text-gray-500 truncate">Amazon Products</dt>
+                                    <dd class="flex items-baseline">
+                                        <div class="text-2xl font-semibold text-gray-900">1,234</div>
+                                        <div class="ml-2 flex items-baseline text-sm font-semibold text-green-600">
+                                            <svg class="self-center flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                                                <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                            </svg>
+                                            <span class="sr-only">Increased by</span>
+                                            8.2%
+                                        </div>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Flipkart Products -->
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-blue-400 rounded-md p-3">
+                                <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2L4 12l8 10 8-10L12 2zm0 3.6l5.5 6.4H6.5L12 5.6z" />
+                                </svg>
+                            </div>
+                            <div class="ml-5 w-0 flex-1">
+                                <dl>
+                                    <dt class="text-sm font-medium text-gray-500 truncate">Flipkart Products</dt>
+                                    <dd class="flex items-baseline">
+                                        <div class="text-2xl font-semibold text-gray-900">1,224</div>
+                                        <div class="ml-2 flex items-baseline text-sm font-semibold text-green-600">
+                                            <svg class="self-center flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                                                <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                            </svg>
+                                            <span class="sr-only">Increased by</span>
+                                            15.3%
+                                        </div>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Average Discount -->
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
+                                <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                </svg>
+                            </div>
+                            <div class="ml-5 w-0 flex-1">
+                                <dl>
+                                    <dt class="text-sm font-medium text-gray-500 truncate">Avg. Discount</dt>
+                                    <dd class="flex items-baseline">
+                                        <div class="text-2xl font-semibold text-gray-900">24.6%</div>
+                                        <div class="ml-2 flex items-baseline text-sm font-semibold text-red-600">
+                                            <svg class="self-center flex-shrink-0 h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                                                <path fill-rule="evenodd" d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V5a1 1 0 012 0v7.586l2.293-2.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                            </svg>
+                                            <span class="sr-only">Decreased by</span>
+                                            3.2%
+                                        </div>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Price Distribution Chart -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Price Distribution</h3>
+                    <div class="h-64">
+                        <canvas id="priceDistributionChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Discount Comparison Chart -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Discount Comparison</h3>
+                    <div class="h-64">
+                        <canvas id="discountComparisonChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Price Trends Chart -->
+                <div class="bg-white p-4 rounded-lg shadow md:col-span-2">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Price Trends</h3>
+                    <div class="h-96">
+                        <canvas id="priceTrendsChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Category Distribution Chart -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Category Distribution</h3>
+                    <div class="h-80">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Price by Category Chart -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Price by Category</h3>
+                    <div class="h-80">
+                        <canvas id="priceByCategoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Access Section -->
+            <div class="mt-8">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">Quick Access</h2>
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <!-- Price Comparison Card -->
+                    <a href="price-comparison.html" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-300 border border-gray-100 hover:border-blue-200 block">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 bg-blue-100 p-3 rounded-lg">
+                                <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-medium text-gray-900">Price Comparison</h3>
+                                <p class="mt-1 text-sm text-gray-500">Compare prices between Amazon and Flipkart across different product categories</p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- Trends Card -->
+                    <a href="price-trends-fixed.html" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-300 border border-gray-100 hover:border-green-200 block">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 bg-green-100 p-3 rounded-lg">
+                                <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4m8 11l-4-4-4 4-3-3-3 3-4-4-4 4V5a2 2 0 012-2h14a2 2 0 012 2v14z" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-medium text-gray-900">Pricing Trends</h3>
+                                <p class="mt-1 text-sm text-gray-500">Analyze price trends over time and identify seasonal patterns</p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- Insights Card -->
+                    <a href="insights.html" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-300 border border-gray-100 hover:border-purple-200 block">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 bg-purple-100 p-3 rounded-lg">
+                                <svg class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-medium text-gray-900">Market Insights</h3>
+                                <p class="mt-1 text-sm text-gray-500">Explore detailed market share and category performance analysis</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+                                </div>
+                            </div>
+                        </li>
+                        <!-- Removed checkmark icon list item -->
+                        <li class="px-6 py-4">
+                            <div class="flex items-center justify-center">
+            <!-- Price Comparison Tool Banner -->
+            <div class="mt-8 bg-gradient-to-r from-blue-800 to-blue-900 rounded-xl shadow-lg overflow-hidden w-full max-w-4xl mx-auto">
+                <div class="px-6 py-8 sm:p-10">
+                    <div class="flex flex-col md:flex-row justify-between items-center">
+                        <div class="flex-1 text-center md:text-left mb-6 md:mb-0">
+                            <h2 class="text-2xl font-bold text-white">Price Comparison Tool</h2>
+                            <p class="mt-2 text-blue-100 max-w-2xl">Quickly compare prices between Amazon and Flipkart for popular products</p>
+                        </div>
+                        <a href="simple_dashboard.html" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50 transition-colors duration-200 shadow-sm">
+                            Open Price Comparison
+                            <svg class="ml-2 -mr-1 w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                    </div>
+                        </div>
+                    </div>
+
+                    <!-- Results Table (Hidden by default, shown when View More is clicked) -->
+                    <div id="productsListSection" class="hidden border-t border-gray-200">
+                        <div class="px-4 py-4 sm:px-6 bg-gray-50">
+                            <h4 class="text-lg font-semibold text-gray-900">📦 All Products</h4>
+                        </div>
+                        <div id="loadingIndicator" class="hidden px-6 py-8 text-center">
+                            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                            <p class="mt-2 text-sm text-gray-500">Searching products...</p>
+                        </div>
+                        <div id="noResults" class="hidden px-6 py-8 text-center">
+                            <p class="text-sm text-gray-500">No products found. Try a different search term.</p>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Platform</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discount</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Festive Event</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productTableBody" class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td colspan="6" class="px-6 py-8 text-center text-sm text-gray-500">
+                                            Enter a search term to find products
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="paginationInfo" class="hidden bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                            <div>
+                                <p class="text-sm text-gray-700" id="resultsCount">
+                                    Showing <span class="font-medium">0</span> results
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white">
+        <div class="max-w-7xl mx-auto py-12 px-4 overflow-hidden sm:px-6 lg:px-8">
+            <p class="text-center text-base text-gray-500">
+                &copy; 2025 PriceWar Analytics. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Firebase and App Scripts -->
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAk5R0dWiRAyKdIqa0WnocdqkfhTptSyFk",
+            authDomain: "ads-project-dfd93.firebaseapp.com",
+            projectId: "ads-project-dfd93",
+            storageBucket: "ads-project-dfd93.firebasestorage.app",
+            messagingSenderId: "974516291458",
+            appId: "1:974516291458:web:42734b8547c5c16515719b",
+            measurementId: "G-LVFBBHKGNQ"
+        };
+        
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        // Check authentication state
+        firebase.auth().onAuthStateChanged((user) => {
+            if (!user) {
+                // User is not signed in, redirect to login page
+                window.location.href = 'login.html';
+            } else {
+                // User is signed in, update UI
+                updateUserUI(user);
+            }
+        });
+
+        // Update UI with user information
+        function updateUserUI(user) {
+            const displayName = user.displayName || 'User';
+            const email = user.email || '';
+            const initial = displayName.charAt(0).toUpperCase();
+            
+            // Update UI elements
+            document.getElementById('userInitial').textContent = initial;
+            document.getElementById('mobileUserInitial').textContent = initial;
+            document.getElementById('userName').textContent = displayName;
+            document.getElementById('userEmail').textContent = email;
+            document.getElementById('welcomeName').textContent = displayName.split(' ')[0];
+        }
+
+        // Sign out function
+        function signOut() {
+            firebase.auth().signOut().then(() => {
+                // Sign-out successful.
+                window.location.href = 'login.html';
+            }).catch((error) => {
+                // An error happened.
+                console.error('Sign out error:', error);
+            });
+        }
+
+        // Add event listeners when DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    const expanded = this.getAttribute('aria-expanded') === 'true' || false;
+                    this.setAttribute('aria-expanded', !expanded);
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+
+            // User menu toggle
+            const userMenuButton = document.getElementById('user-menu');
+            const userDropdown = document.getElementById('userDropdown');
+            const signOutBtn = document.getElementById('signOutBtn');
+            const mobileSignOutBtn = document.getElementById('mobileSignOutBtn');
+            
+            if (userMenuButton && userDropdown) {
+                userMenuButton.addEventListener('click', function() {
+                    const expanded = userMenuButton.getAttribute('aria-expanded') === 'true' || false;
+                    userMenuButton.setAttribute('aria-expanded', !expanded);
+                    userDropdown.classList.toggle('hidden');
+                });
+            }
+            
+            // Sign out buttons
+            if (signOutBtn) {
+                signOutBtn.addEventListener('click', signOut);
+            }
+            
+            if (mobileSignOutBtn) {
+                mobileSignOutBtn.addEventListener('click', signOut);
+            }
+            
+            // Initialize charts when the page is fully loaded
+            window.addEventListener('load', function() {
+                try {
+                    initializeCharts();
+                } catch (error) {
+                    console.error('Error initializing charts:', error);
+                }
+            });
+        });
+
+        // Initialize charts with Chart.js
+        function initializeCharts() {
+            // Price Distribution Chart
+            const priceCtx = document.getElementById('priceDistributionChart').getContext('2d');
+            new Chart(priceCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['< ₹1,000', '₹1,000-5,000', '₹5,000-10,000', '₹10,000-20,000', '> ₹20,000'],
+                    datasets: [
+                        {
+                            label: 'Amazon',
+                            data: [120, 450, 320, 180, 80],
+                            backgroundColor: 'rgba(251, 191, 36, 0.7)',
+                            borderColor: 'rgba(251, 191, 36, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Flipkart',
+                            data: [150, 420, 300, 200, 70],
+                            backgroundColor: 'rgba(96, 165, 250, 0.7)',
+                            borderColor: 'rgba(96, 165, 250, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Discount Comparison Chart
+            const discountCtx = document.getElementById('discountComparisonChart').getContext('2d');
+            new Chart(discountCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Amazon', 'Flipkart'],
+                    datasets: [{
+                        data: [28.6, 24.3],
+                        backgroundColor: [
+                            'rgba(251, 191, 36, 0.7)',
+                            'rgba(96, 165, 250, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(251, 191, 36, 1)',
+                            'rgba(96, 165, 250, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Price Trends Chart
+            const trendsCtx = document.getElementById('priceTrendsChart').getContext('2d');
+            new Chart(trendsCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [
+                        {
+                            label: 'Amazon',
+                            data: [4500, 4600, 4550, 4450, 4400, 4350, 4300, 4400, 4300, 4200, 4100, 4000],
+                            borderColor: 'rgba(251, 191, 36, 1)',
+                            backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Flipkart',
+                            data: [4400, 4500, 4450, 4350, 4300, 4250, 4200, 4300, 4200, 4100, 4000, 3900],
+                            borderColor: 'rgba(96, 165, 250, 1)',
+                            backgroundColor: 'rgba(96, 165, 250, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Average Price Trends (2023)'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                        }
+                    },
+                    hover: {
+                        mode: 'nearest',
+                        intersect: true
+                    }
+                }
+            });
+
+            // Category Distribution Chart
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            new Chart(categoryCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Electronics', 'Fashion', 'Home & Kitchen', 'Beauty', 'Books', 'Others'],
+                    datasets: [{
+                        data: [35, 25, 15, 10, 8, 7],
+                        backgroundColor: [
+                            'rgba(251, 191, 36, 0.7)',
+                            'rgba(96, 165, 250, 0.7)',
+                            'rgba(74, 222, 128, 0.7)',
+                            'rgba(244, 63, 94, 0.7)',
+                            'rgba(168, 85, 247, 0.7)',
+                            'rgba(20, 184, 166, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(251, 191, 36, 1)',
+                            'rgba(96, 165, 250, 1)',
+                            'rgba(74, 222, 128, 1)',
+                            'rgba(244, 63, 94, 1)',
+                            'rgba(168, 85, 247, 1)',
+                            'rgba(20, 184, 166, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+
+            // Price by Category Chart
+            const priceByCategoryCtx = document.getElementById('priceByCategoryChart').getContext('2d');
+            new Chart(priceByCategoryCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Smartphones', 'Laptops', 'Headphones', 'Smartwatches', 'TVs', 'Speakers'],
+                    datasets: [
+                        {
+                            label: 'Amazon',
+                            data: [25000, 55000, 3500, 12000, 42000, 5000],
+                            backgroundColor: 'rgba(251, 191, 36, 0.7)',
+                            borderColor: 'rgba(251, 191, 36, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Flipkart',
+                            data: [24500, 54000, 3400, 11800, 41500, 4900],
+                            backgroundColor: 'rgba(96, 165, 250, 0.7)',
+                            borderColor: 'rgba(96, 165, 250, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + value.toLocaleString('en-IN');
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return '₹' + context.raw.toLocaleString('en-IN');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Product Search Functionality
+        const API_BASE_URL = 'http://localhost:5000'; // Change this to your API URL
+        
+        // Test API connection on page load
+        async function testAPIConnection() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/filters`);
+                if (response.ok) {
+                    console.log('✅ API server is connected and working!');
+                } else {
+                    console.warn('⚠️ API server responded with error:', response.status);
+                }
+            } catch (error) {
+                console.error('❌ Cannot connect to API server:', error);
+                console.log('Make sure the server is running: python price_api.py');
+            }
+        }
+        
+        // Run test on page load
+        window.addEventListener('load', testAPIConnection);
+        
+        // Load filters on page load
+        async function loadFilters() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/filters`);
+                const data = await response.json();
+                
+                const categoryFilter = document.getElementById('categoryFilter');
+                const brandFilter = document.getElementById('brandFilter');
+                const startDateInput = document.getElementById('startDate');
+                const endDateInput = document.getElementById('endDate');
+                
+                // Populate category filter
+                if (data.categories && data.categories.length > 0) {
+                    data.categories.forEach(category => {
+                        const option = document.createElement('option');
+                        option.value = category;
+                        option.textContent = category;
+                        categoryFilter.appendChild(option);
+                    });
+                }
+                
+                // Populate brand filter
+                if (data.brands && data.brands.length > 0) {
+                    data.brands.forEach(brand => {
+                        const option = document.createElement('option');
+                        option.value = brand;
+                        option.textContent = brand;
+                        brandFilter.appendChild(option);
+                    });
+                }
+                
+                // Set date range from dataset
+                if (data.date_range && data.date_range.start && data.date_range.end) {
+                    if (startDateInput) {
+                        startDateInput.min = data.date_range.start;
+                        startDateInput.max = data.date_range.end;
+                    }
+                    if (endDateInput) {
+                        endDateInput.min = data.date_range.start;
+                        endDateInput.max = data.date_range.end;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading filters:', error);
+            }
+        }
+
+        // Format currency
+        function formatCurrency(amount) {
+            if (!amount && amount !== 0) return '-';
+            return '₹' + parseFloat(amount).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+        }
+
+        // Store previous search results for price comparison
+        let previousSearchResults = null;
+        let previousDateRange = null;
+        let previousSearchTerm = null;
+
+        // Auto-fill dates if empty
+        function ensureDatesFilled() {
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            const today = new Date().toISOString().split('T')[0];
+            
+            if (startDateInput && !startDateInput.value) {
+                startDateInput.value = today;
+            }
+            if (endDateInput && !endDateInput.value) {
+                endDateInput.value = today;
+            }
+            
+            return {
+                start: startDateInput.value,
+                end: endDateInput.value
+            };
+        }
+
+        // Track if search is in progress to prevent multiple searches
+        window.isSearching = false;
+
+        // Search products
+        async function searchProducts() {
+            console.log('searchProducts function called');
+            try {
+                // Prevent multiple simultaneous searches
+                if (window.isSearching) {
+                    console.log('Search already in progress');
+                    return;
+                }
+                
+                window.isSearching = true;
+                console.log('Starting search...');
+                
+                const searchTermInput = document.getElementById('productSearch');
+                if (!searchTermInput) {
+                    console.error('Search input not found');
+                    window.isSearching = false;
+                    return;
+                }
+                
+                const searchTerm = searchTermInput.value.trim();
+                const category = document.getElementById('categoryFilter')?.value || '';
+                const brand = document.getElementById('brandFilter')?.value || '';
+                
+                if (!searchTerm) {
+                    alert('Please enter a search term');
+                    window.isSearching = false;
+                    return;
+                }
+
+                // Get dates but don't auto-fill - let user control or use empty for all dates
+                const startDateInput = document.getElementById('startDate');
+                const endDateInput = document.getElementById('endDate');
+                let startDate = startDateInput?.value || '';
+                let endDate = endDateInput?.value || '';
+                
+                // If both dates are the same and it's a future date, clear them to avoid filtering issues
+                if (startDate && endDate && startDate === endDate) {
+                    const selectedDate = new Date(startDate);
+                    const today = new Date();
+                    if (selectedDate > today) {
+                        console.log('Future date detected, clearing date filter');
+                        startDate = '';
+                        endDate = '';
+                        if (startDateInput) startDateInput.value = '';
+                        if (endDateInput) endDateInput.value = '';
+                    }
+                }
+                
+                console.log('Searching for:', searchTerm, 'Dates:', startDate, 'to', endDate);
+
+                const loadingIndicator = document.getElementById('loadingIndicator');
+                const noResults = document.getElementById('noResults');
+                const tableBody = document.getElementById('productTableBody');
+                const miniReport = document.getElementById('miniReport');
+                const platformComparison = document.getElementById('platformComparison');
+                const productsListSection = document.getElementById('productsListSection');
+                const viewMoreBtn = document.getElementById('viewMoreBtn');
+                const viewLessBtn = document.getElementById('viewLessBtn');
+                const paginationInfo = document.getElementById('paginationInfo');
+
+                if (!loadingIndicator || !tableBody) {
+                    console.error('Required DOM elements not found');
+                    alert('Error: Page elements not loaded. Please refresh the page.');
+                    return;
+                }
+
+                // Show loading - make sure the section is visible
+                if (productsListSection) productsListSection.classList.remove('hidden');
+                if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                if (noResults) noResults.classList.add('hidden');
+                if (tableBody) tableBody.innerHTML = '';
+                if (miniReport) miniReport.classList.add('hidden');
+                if (platformComparison) platformComparison.classList.add('hidden');
+                if (viewMoreBtn) viewMoreBtn.classList.add('hidden');
+                if (viewLessBtn) viewLessBtn.classList.add('hidden');
+                if (paginationInfo) paginationInfo.classList.add('hidden');
+
+                try {
+                    // Build query parameters - convert search term to lowercase for case-insensitive search
+                    const searchTermLower = searchTerm.toLowerCase();
+                    const params = new URLSearchParams({ q: searchTermLower });
+                    if (category) params.append('category', category);
+                    if (brand) params.append('brand', brand);
+                    if (startDate) params.append('start', startDate);
+                    if (endDate) params.append('end', endDate);
+                    
+                    // Add flag for partial matching
+                    params.append('partial', 'true');
+
+                    const apiUrl = `${API_BASE_URL}/api/price-comparison?${params.toString()}`;
+                    console.log('Fetching from:', apiUrl);
+                    
+                    const response = await fetch(apiUrl);
+                    
+                    if (!response.ok) {
+                        throw new Error(`API returned ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
+                    console.log('Received data:', data);
+
+                    loadingIndicator.classList.add('hidden');
+
+                    if (data.error) {
+                        alert(data.error);
+                        return;
+                    }
+
+                    if (!data.results || data.results.length === 0) {
+                        if (noResults) {
+                            noResults.classList.remove('hidden');
+                            // Show helpful message with suggestions
+                            let suggestionText = 'Try searching for: <strong>Fire</strong>, <strong>Essential</strong>, <strong>Snack</strong>, <strong>Stick</strong>, or browse by category/brand';
+                            if (startDate || endDate) {
+                                suggestionText += '<br><br><button onclick="document.getElementById(\'clearDatesBtn\').click()" class="text-blue-600 hover:text-blue-800 underline text-sm font-medium">Clear date filters</button> to see all products';
+                            }
+                            noResults.innerHTML = `
+                                <p class="text-sm text-gray-500 mb-2">No products found for "${searchTerm}"</p>
+                                <div class="text-xs text-gray-400 mt-2">${suggestionText}</div>
+                            `;
+                        }
+                        window.isSearching = false;
+                        return;
+                    }
+
+                    // Store results data for later use
+                    window.lastSearchResults = data;
+                    
+                    // Check if this is the same product but different date range (for price change tracking)
+                    const currentDateRange = { start: startDate, end: endDate };
+                    const isSameProduct = previousSearchTerm === searchTerm;
+                    const isDateRangeChanged = previousDateRange && 
+                        (previousDateRange.start !== currentDateRange.start || previousDateRange.end !== currentDateRange.end);
+                    
+                    // Always update platform comparison first (most important feature)
+                    if (platformComparison) {
+                        updatePlatformComparison(data, isSameProduct && isDateRangeChanged ? previousSearchResults : null);
+                    }
+                    
+                    // Update mini report
+                    if (miniReport) {
+                        updateMiniReport(data);
+                    }
+                    
+                    // Display price comparison table
+                    displayPriceComparisonTable(data);
+                    
+                    // Show "View More Products" button if there are results
+                    // Hide the products list section initially (user can click View More to see all)
+                    if (data.results && data.results.length > 0) {
+                        if (viewMoreBtn) viewMoreBtn.classList.remove('hidden');
+                        if (viewLessBtn) viewLessBtn.classList.add('hidden');
+                        // Hide the full products list section - user can click "View More" to see it
+                        if (productsListSection) productsListSection.classList.add('hidden');
+                    } else {
+                        // No results - keep the section visible to show "no results" message
+                        if (productsListSection) productsListSection.classList.remove('hidden');
+                    }
+                    
+                    // Store current search for next comparison
+                    previousSearchResults = data;
+                    previousDateRange = currentDateRange;
+                    previousSearchTerm = searchTerm;
+                    
+                    // Add to recent activity
+                    addToRecentActivity(searchTerm, data);
+
+                } catch (error) {
+                    console.error('Error searching products:', error);
+                    if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                    let errorMsg = 'Error searching products. ';
+                    if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                        errorMsg += 'Cannot connect to API server. Make sure the server is running on http://localhost:5000';
+                    } else {
+                        errorMsg += error.message;
+                    }
+                    alert(errorMsg);
+                    console.log('Full error:', error);
+                } finally {
+                    // Reset search flag when done or on error
+                    window.isSearching = false;
+                }
+            } catch (error) {
+                console.error('Error in searchProducts function:', error);
+                alert('Error: ' + error.message);
+                window.isSearching = false;
+            }
+        }
+
+        // Display price comparison table
+        function displayPriceComparisonTable(data) {
+            const priceComparisonTable = document.getElementById('priceComparisonTable');
+            const comparisonTableBody = document.getElementById('comparisonTableBody');
+            const comparisonResultsCount = document.getElementById('comparisonResultsCount');
+            const comparisonPaginationInfo = document.getElementById('comparisonPaginationInfo');
+            
+            if (!priceComparisonTable || !comparisonTableBody) {
+                console.error('Price comparison table elements not found');
+                return;
+            }
+            
+            // Show the comparison table section
+            priceComparisonTable.classList.remove('hidden');
+            comparisonTableBody.innerHTML = '';
+            
+            if (!data.results || data.results.length === 0) {
+                comparisonTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="px-6 py-8 text-center text-sm text-gray-500">
+                            No products found for comparison
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Group results by product name to create comparison rows
+            const productGroups = {};
+            
+            data.results.forEach(product => {
+                const productName = product.product || 'Unknown';
+                if (!productGroups[productName]) {
+                    productGroups[productName] = {
+                        name: productName,
+                        brand: product.brand || '-',
+                        category: product.category || '-',
+                        amazon: null,
+                        flipkart: null
+                    };
+                }
+                
+                if (product.platform === 'Amazon' || product.platform === 'amazon_com') {
+                    productGroups[productName].amazon = product;
+                } else if (product.platform === 'Flipkart' || product.platform === 'flipkart_com') {
+                    productGroups[productName].flipkart = product;
+                }
+            });
+            
+            // Create comparison rows
+            Object.values(productGroups).forEach(group => {
+                const row = document.createElement('tr');
+                
+                const amazonPrice = group.amazon?.final_price;
+                const flipkartPrice = group.flipkart?.final_price;
+                
+                let priceDifference = '-';
+                let bestDeal = '-';
+                let bestDealColor = 'text-gray-500';
+                
+                if (amazonPrice && flipkartPrice) {
+                    const diff = Math.abs(amazonPrice - flipkartPrice);
+                    priceDifference = `₹${diff.toFixed(2)}`;
+                    
+                    if (amazonPrice < flipkartPrice) {
+                        bestDeal = '🏆 Amazon';
+                        bestDealColor = 'text-yellow-600 font-bold';
+                    } else if (flipkartPrice < amazonPrice) {
+                        bestDeal = '🏆 Flipkart';
+                        bestDealColor = 'text-blue-600 font-bold';
+                    } else {
+                        bestDeal = 'Same Price';
+                        bestDealColor = 'text-green-600 font-bold';
+                    }
+                }
+                
+                const amazonDiscount = group.amazon?.discount_percent 
+                    ? `${group.amazon.discount_percent.toFixed(1)}%`
+                    : '-';
+                
+                const flipkartDiscount = group.flipkart?.discount_percent 
+                    ? `${group.flipkart.discount_percent.toFixed(1)}%`
+                    : '-';
+                
+                const maxDiscount = Math.max(
+                    group.amazon?.discount_percent || 0,
+                    group.flipkart?.discount_percent || 0
+                );
+                
+                const discountDisplay = maxDiscount > 0 
+                    ? `${maxDiscount.toFixed(1)}%`
+                    : '-';
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4">
+                        <div class="text-sm font-medium text-gray-900">${group.name}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-600">${group.brand}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-600">${group.category}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        ${group.amazon ? `<span class="text-sm font-semibold text-yellow-700">₹${parseFloat(group.amazon.final_price).toFixed(2)}</span>` : '<span class="text-xs text-gray-400">N/A</span>'}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        ${group.flipkart ? `<span class="text-sm font-semibold text-blue-700">₹${parseFloat(group.flipkart.final_price).toFixed(2)}</span>` : '<span class="text-xs text-gray-400">N/A</span>'}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="text-sm font-semibold text-red-600">${priceDifference}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="text-sm ${bestDealColor}">${bestDeal}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="text-sm font-semibold text-green-600">${discountDisplay}</span>
+                    </td>
+                `;
+                
+                comparisonTableBody.appendChild(row);
+            });
+            
+            // Update pagination info
+            const uniqueProducts = Object.keys(productGroups).length;
+            comparisonResultsCount.innerHTML = `Showing <span class="font-medium">${uniqueProducts}</span> product comparisons`;
+            comparisonPaginationInfo.classList.remove('hidden');
+        }
+
+        // Display search results
+        function displayResults(data) {
+            const tableBody = document.getElementById('productTableBody');
+            const paginationInfo = document.getElementById('paginationInfo');
+            const resultsCount = document.getElementById('resultsCount');
+            const productsListSection = document.getElementById('productsListSection');
+            const viewMoreBtn = document.getElementById('viewMoreBtn');
+            const viewLessBtn = document.getElementById('viewLessBtn');
+            
+            // Show the products list section
+            productsListSection.classList.remove('hidden');
+            
+            // Toggle button visibility
+            viewMoreBtn.classList.add('hidden');
+            viewLessBtn.classList.remove('hidden');
+            
+            tableBody.innerHTML = '';
+            
+            // Display all results (or limit if needed)
+            const resultsToShow = data.results;
+            
+            resultsToShow.forEach(product => {
+                const row = document.createElement('tr');
+                
+                const platformBadge = product.platform === 'Amazon' 
+                    ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Amazon</span>'
+                    : '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Flipkart</span>';
+                
+                const discountBadge = product.discount_percent 
+                    ? `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">${product.discount_percent.toFixed(1)}% OFF</span>`
+                    : '<span class="text-xs text-gray-400">No discount</span>';
+                
+                const festiveEvent = product.festive_window 
+                    ? `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">${product.festive_window}</span>`
+                    : '<span class="text-xs text-gray-400">-</span>';
+                
+                // Handle price formatting - API returns numbers, not formatted strings
+                const mrpValue = product.mrp !== null && product.mrp !== undefined ? parseFloat(product.mrp) : null;
+                const finalPriceValue = product.final_price !== null && product.final_price !== undefined ? parseFloat(product.final_price) : null;
+                
+                const mrpDisplay = mrpValue 
+                    ? `<span class="line-through text-gray-400">${formatCurrency(mrpValue)}</span>`
+                    : '';
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4">
+                        <div class="text-sm font-medium text-gray-900">${product.product || '-'}</div>
+                        ${product.brand ? `<div class="text-sm text-gray-500">${product.brand}</div>` : ''}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${product.category || '-'}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        ${platformBadge}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        ${mrpDisplay}
+                        <span class="ml-2 font-semibold text-gray-900">${formatCurrency(finalPriceValue)}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        ${discountBadge}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        ${festiveEvent}
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // Update pagination info
+            resultsCount.innerHTML = `Showing <span class="font-medium">${resultsToShow.length}</span> of <span class="font-medium">${data.metadata.total_matches}</span> results`;
+            paginationInfo.classList.remove('hidden');
+        }
+
+        // Update platform comparison
+        function updatePlatformComparison(data, previousData = null) {
+            const platformComparison = document.getElementById('platformComparison');
+            const comparisonContent = document.getElementById('comparisonContent');
+            
+            // Group by platform
+            const amazonData = data.platform_summary?.find(p => p.platform === 'Amazon');
+            const flipkartData = data.platform_summary?.find(p => p.platform === 'Flipkart');
+            
+            // Show comparison if at least one platform has data
+            if (!amazonData && !flipkartData) {
+                platformComparison.classList.add('hidden');
+                return;
+            }
+            
+            platformComparison.classList.remove('hidden');
+            comparisonContent.innerHTML = '';
+            
+            // Get previous platform data for price comparison
+            const prevAmazonData = previousData?.platform_summary?.find(p => p.platform === 'Amazon');
+            const prevFlipkartData = previousData?.platform_summary?.find(p => p.platform === 'Flipkart');
+            
+            // Calculate price changes
+            let amazonPriceChange = null;
+            let flipkartPriceChange = null;
+            
+            if (prevAmazonData && amazonData) {
+                const prevPrice = parseFloat(prevAmazonData.best_final_price);
+                const currentPrice = parseFloat(amazonData.best_final_price);
+                if (!isNaN(prevPrice) && !isNaN(currentPrice) && prevPrice !== currentPrice) {
+                    amazonPriceChange = {
+                        old: prevPrice,
+                        new: currentPrice,
+                        change: currentPrice - prevPrice,
+                        percent: ((currentPrice - prevPrice) / prevPrice * 100).toFixed(1)
+                    };
+                }
+            }
+            
+            if (prevFlipkartData && flipkartData) {
+                const prevPrice = parseFloat(prevFlipkartData.best_final_price);
+                const currentPrice = parseFloat(flipkartData.best_final_price);
+                if (!isNaN(prevPrice) && !isNaN(currentPrice) && prevPrice !== currentPrice) {
+                    flipkartPriceChange = {
+                        old: prevPrice,
+                        new: currentPrice,
+                        change: currentPrice - prevPrice,
+                        percent: ((currentPrice - prevPrice) / prevPrice * 100).toFixed(1)
+                    };
+                }
+            }
+            
+            // If only one platform has data, show a placeholder for the missing one
+            if (amazonData && !flipkartData) {
+                // Show message that Flipkart data is not available
+                const placeholderCard = document.createElement('div');
+                placeholderCard.className = 'bg-white p-5 rounded-lg shadow-md border-2 border-gray-200 opacity-60';
+                placeholderCard.innerHTML = `
+                    <div class="flex items-center justify-center h-full min-h-[200px]">
+                        <div class="text-center">
+                            <h5 class="text-lg font-bold text-gray-400 mb-2">Flipkart</h5>
+                            <p class="text-sm text-gray-500">No data available for this product</p>
+                        </div>
+                    </div>
+                `;
+                comparisonContent.appendChild(placeholderCard);
+            }
+            
+            if (flipkartData && !amazonData) {
+                // Show message that Amazon data is not available
+                const placeholderCard = document.createElement('div');
+                placeholderCard.className = 'bg-white p-5 rounded-lg shadow-md border-2 border-gray-200 opacity-60';
+                placeholderCard.innerHTML = `
+                    <div class="flex items-center justify-center h-full min-h-[200px]">
+                        <div class="text-center">
+                            <h5 class="text-lg font-bold text-gray-400 mb-2">Amazon</h5>
+                            <p class="text-sm text-gray-500">No data available for this product</p>
+                        </div>
+                    </div>
+                `;
+                comparisonContent.insertBefore(placeholderCard, comparisonContent.firstChild);
+            }
+            
+            // Determine winner
+            let winner = null;
+            let winnerPrice = null;
+            let loser = null;
+            let loserPrice = null;
+            
+            if (amazonData && flipkartData) {
+                const amazonPrice = parseFloat(amazonData.best_final_price);
+                const flipkartPrice = parseFloat(flipkartData.best_final_price);
+                
+                if (amazonPrice < flipkartPrice) {
+                    winner = 'Amazon';
+                    winnerPrice = amazonPrice;
+                    loser = 'Flipkart';
+                    loserPrice = flipkartPrice;
+                } else if (flipkartPrice < amazonPrice) {
+                    winner = 'Flipkart';
+                    winnerPrice = flipkartPrice;
+                    loser = 'Amazon';
+                    loserPrice = amazonPrice;
+                }
+            } else if (amazonData) {
+                winner = 'Amazon';
+                winnerPrice = parseFloat(amazonData.best_final_price);
+            } else if (flipkartData) {
+                winner = 'Flipkart';
+                winnerPrice = parseFloat(flipkartData.best_final_price);
+            }
+            
+            // Create comparison cards with price change info - Always show Amazon first, then Flipkart
+            if (amazonData) {
+                const isWinner = winner === 'Amazon' && amazonData && flipkartData;
+                const savings = (isWinner && loserPrice && winnerPrice) ? (loserPrice - winnerPrice) : null;
+                const card = createPlatformCard('Amazon', amazonData, isWinner, savings, amazonPriceChange);
+                comparisonContent.appendChild(card);
+            }
+            
+            if (flipkartData) {
+                const isWinner = winner === 'Flipkart' && amazonData && flipkartData;
+                const savings = (isWinner && loserPrice && winnerPrice) ? (loserPrice - winnerPrice) : null;
+                const card = createPlatformCard('Flipkart', flipkartData, isWinner, savings, flipkartPriceChange);
+                comparisonContent.appendChild(card);
+            }
+            
+            // Add winner banner - Show both prices side by side for clear comparison
+            if (winner && amazonData && flipkartData) {
+                const savings = loserPrice - winnerPrice;
+                const savingsPercent = ((savings / loserPrice) * 100).toFixed(1);
+                const amazonPrice = parseFloat(amazonData.best_final_price);
+                const flipkartPrice = parseFloat(flipkartData.best_final_price);
+                
+                const winnerBanner = document.createElement('div');
+                winnerBanner.className = 'md:col-span-2 bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-lg shadow-xl border-4 border-green-300';
+                winnerBanner.innerHTML = `
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div class="flex-1">
+                            <h5 class="text-2xl font-bold mb-2 flex items-center gap-2">
+                                <span class="text-3xl">🏆</span>
+                                <span>${winner} has the Best Price!</span>
+                            </h5>
+                            <p class="text-green-100 text-lg mb-3">Save <span class="font-bold text-white">${formatCurrency(savings)}</span> (${savingsPercent}%) by choosing ${winner} over ${loser}</p>
+                            <div class="grid grid-cols-2 gap-4 mt-4">
+                                <div class="bg-white bg-opacity-20 rounded-lg p-3">
+                                    <p class="text-xs text-green-200 mb-1">Amazon Price</p>
+                                    <p class="text-xl font-bold ${winner === 'Amazon' ? 'text-yellow-300' : 'text-white'}">${formatCurrency(amazonPrice)}</p>
+                                </div>
+                                <div class="bg-white bg-opacity-20 rounded-lg p-3">
+                                    <p class="text-xs text-green-200 mb-1">Flipkart Price</p>
+                                    <p class="text-xl font-bold ${winner === 'Flipkart' ? 'text-yellow-300' : 'text-white'}">${formatCurrency(flipkartPrice)}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center md:text-right bg-white bg-opacity-20 rounded-lg p-4 min-w-[150px]">
+                            <p class="text-sm text-green-200 mb-1">Best Price</p>
+                            <p class="text-4xl font-extrabold text-yellow-300">${formatCurrency(winnerPrice)}</p>
+                            <p class="text-sm text-green-200 mt-2">You Save</p>
+                            <p class="text-2xl font-bold text-white">${formatCurrency(savings)}</p>
+                        </div>
+                    </div>
+                `;
+                comparisonContent.insertBefore(winnerBanner, comparisonContent.firstChild);
+            }
+        }
+        
+        // Create platform comparison card
+        function createPlatformCard(platformName, platformData, isWinner, savings, priceChange = null) {
+            const card = document.createElement('div');
+            const bgColor = platformName === 'Amazon' ? 'bg-yellow-50 border-yellow-300' : 'bg-blue-50 border-blue-300';
+            const textColor = platformName === 'Amazon' ? 'text-yellow-900' : 'text-blue-900';
+            const accentColor = platformName === 'Amazon' ? 'bg-yellow-100' : 'bg-blue-100';
+            
+            // Price change indicator HTML
+            let priceChangeHtml = '';
+            if (priceChange && priceChange.change !== 0) {
+                const isIncrease = priceChange.change > 0;
+                const changeColor = isIncrease ? 'text-red-600' : 'text-green-600';
+                const changeBgColor = isIncrease ? 'bg-red-50' : 'bg-green-50';
+                const changeIcon = isIncrease ? '📈' : '📉';
+                const changeText = isIncrease ? 'Increased' : 'Decreased';
+                
+                priceChangeHtml = `
+                    <div class="mt-3 pt-3 border-t border-gray-200 ${changeBgColor} rounded p-2">
+                        <p class="text-xs font-semibold text-gray-700 mb-1">${changeIcon} Price Change (Date Range)</p>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-600">Previous: <span class="font-medium">${formatCurrency(priceChange.old)}</span></p>
+                                <p class="text-xs text-gray-600">Current: <span class="font-medium">${formatCurrency(priceChange.new)}</span></p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-bold ${changeColor}">
+                                    ${isIncrease ? '+' : ''}${formatCurrency(Math.abs(priceChange.change))}
+                                </p>
+                                <p class="text-xs ${changeColor}">${changeText} ${priceChange.percent}%</p>
+                            </div>
+                        </div>
+                        ${platformData.festive_window ? `
+                        <p class="text-xs text-purple-700 mt-2 font-medium">🎉 ${platformData.festive_window}</p>
+                        ` : ''}
+                    </div>
+                `;
+            }
+            
+            // Make price more prominent
+            const bestPrice = parseFloat(platformData.best_final_price);
+            const priceSize = isWinner ? 'text-3xl' : 'text-2xl';
+            const priceColor = isWinner ? 'text-green-600' : 'text-gray-900';
+            
+            card.className = `bg-white p-6 rounded-lg shadow-lg border-2 ${isWinner ? 'border-green-500 ring-4 ring-green-200' : 'border-gray-300'} ${bgColor}`;
+            card.innerHTML = `
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <div class="${accentColor} p-2 rounded-lg">
+                            ${platformName === 'Amazon' ? '🛒' : '🛍️'}
+                        </div>
+                        <div>
+                            <h5 class="text-xl font-bold ${textColor}">${platformName}</h5>
+                            ${isWinner ? '<span class="inline-block mt-1 px-3 py-1 text-xs font-bold rounded-full bg-green-500 text-white animate-pulse">🏆 BEST PRICE</span>' : ''}
+                        </div>
+                    </div>
+                    ${savings ? `<div class="text-right bg-green-50 px-3 py-2 rounded-lg"><p class="text-xs text-gray-600 font-medium">You Save</p><p class="text-xl font-bold text-green-600">${formatCurrency(savings)}</p></div>` : ''}
+                </div>
+                <div class="space-y-3">
+                    <div class="bg-gray-50 p-4 rounded-lg border-2 ${isWinner ? 'border-green-300' : 'border-gray-200'}">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Price</span>
+                            ${isWinner ? '<span class="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded">CHEAPER</span>' : ''}
+                        </div>
+                        <div class="flex items-baseline gap-2">
+                            <span class="${priceSize} font-extrabold ${priceColor}">${formatCurrency(bestPrice)}</span>
+                            ${platformData.mrp ? `<span class="text-sm line-through text-gray-400">${formatCurrency(platformData.mrp)}</span>` : ''}
+                        </div>
+                    </div>
+                    ${platformData.discount_percent ? `
+                    <div class="flex justify-between items-center bg-green-50 p-3 rounded-lg">
+                        <span class="text-sm font-semibold text-gray-700">Discount:</span>
+                        <span class="text-lg font-bold text-green-600">${platformData.discount_percent.toFixed(1)}% OFF</span>
+                    </div>
+                    ` : ''}
+                    ${platformData.festive_window && !priceChange ? `
+                    <div class="flex justify-between items-center bg-purple-50 p-3 rounded-lg">
+                        <span class="text-sm font-semibold text-gray-700">Festive Event:</span>
+                        <span class="text-sm px-3 py-1 rounded-full bg-purple-200 text-purple-800 font-semibold">🎉 ${platformData.festive_window}</span>
+                    </div>
+                    ` : ''}
+                    ${priceChangeHtml}
+                    ${platformData.offers ? `
+                    <div class="mt-2 pt-2 border-t border-gray-200">
+                        <p class="text-xs font-semibold text-gray-600 mb-1">Special Offers:</p>
+                        <p class="text-sm text-gray-700 bg-yellow-50 p-2 rounded">${platformData.offers}</p>
+                    </div>
+                    ` : ''}
+                    ${platformData.combo_offers ? `
+                    <div class="mt-1">
+                        <p class="text-xs font-semibold text-gray-600 mb-1">Combo Offers:</p>
+                        <p class="text-sm text-gray-700 bg-blue-50 p-2 rounded">${platformData.combo_offers}</p>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+            return card;
+        }
+
+        // Update mini report
+        function updateMiniReport(data) {
+            const miniReport = document.getElementById('miniReport');
+            if (!miniReport) return;
+            
+            const bestOverall = data.best_overall;
+            const platformGap = data.platform_gap;
+            
+            if (!bestOverall) {
+                miniReport.classList.add('hidden');
+                return;
+            }
+            
+            miniReport.classList.remove('hidden');
+            
+            // Helper function to safely update element text
+            const updateElement = (id, text) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = text;
+            };
+            
+            // Best Price
+            const bestPriceValue = bestOverall.final_price !== null && bestOverall.final_price !== undefined 
+                ? parseFloat(bestOverall.final_price) : null;
+            updateElement('bestPrice', formatCurrency(bestPriceValue));
+            updateElement('bestPlatform', `on ${bestOverall.platform || 'N/A'}`);
+            
+            // Price Gap
+            if (platformGap && platformGap.price_gap !== null && platformGap.price_gap !== undefined) {
+                const gapValue = parseFloat(platformGap.price_gap);
+                updateElement('priceGap', formatCurrency(gapValue));
+                updateElement('priceGapText', 
+                    `${platformGap.cheapest_platform || 'N/A'} is cheaper than ${platformGap.next_best_platform || 'other platforms'}`
+                );
+            } else {
+                updateElement('priceGap', '-');
+                updateElement('priceGapText', 'Only one platform available');
+            }
+            
+            // Festive Discount
+            if (bestOverall.festive_window) {
+                const discountValue = bestOverall.discount_percent !== null && bestOverall.discount_percent !== undefined
+                    ? parseFloat(bestOverall.discount_percent) : null;
+                updateElement('festiveDiscount', discountValue !== null ? `${discountValue.toFixed(1)}%` : '-');
+                updateElement('festiveEvent', bestOverall.festive_window);
+            } else {
+                updateElement('festiveDiscount', '-');
+                updateElement('festiveEvent', 'No festive event');
+            }
+            
+            // MRP vs Final Price
+            const mrpValue = bestOverall.mrp !== null && bestOverall.mrp !== undefined 
+                ? parseFloat(bestOverall.mrp) : null;
+            updateElement('reportMRP', formatCurrency(mrpValue));
+            updateElement('reportFinal', formatCurrency(bestPriceValue));
+            
+            const savingsValue = bestOverall.discount_absolute !== null && bestOverall.discount_absolute !== undefined
+                ? parseFloat(bestOverall.discount_absolute) : null;
+            updateElement('reportSavings', savingsValue !== null ? formatCurrency(savingsValue) : '-');
+        }
+
+        // Add search to recent activity
+        function addToRecentActivity(searchTerm, data) {
+            const recentActivityList = document.getElementById('recentActivityList');
+            if (!recentActivityList) return;
+            
+            const bestOverall = data.best_overall;
+            const bestPriceValue = bestOverall && bestOverall.final_price !== null && bestOverall.final_price !== undefined
+                ? parseFloat(bestOverall.final_price) : null;
+            const activityText = bestOverall && bestPriceValue !== null
+                ? `Found best price ${formatCurrency(bestPriceValue)} on ${bestOverall.platform}`
+                : `Searched for "${searchTerm}"`;
+            
+            const newActivity = document.createElement('li');
+            newActivity.className = 'px-6 py-4';
+            newActivity.innerHTML = `
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                            <svg class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-900">Product search: "${searchTerm}"</p>
+                        <p class="text-sm text-gray-500">${activityText}</p>
+                        <p class="text-xs text-gray-400 mt-1">Just now</p>
+                    </div>
+                </div>
+            `;
+            
+            // Insert at the beginning
+            recentActivityList.insertBefore(newActivity, recentActivityList.firstChild);
+            
+            // Keep only first 5 activities
+            while (recentActivityList.children.length > 5) {
+                recentActivityList.removeChild(recentActivityList.lastChild);
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFilters();
+            
+            // Ensure dates are filled when page loads
+            ensureDatesFilled();
+            
+            // Set up search form submission
+            const searchForm = document.getElementById('searchForm');
+            const searchBtn = document.getElementById('searchBtn');
+            const searchInput = document.getElementById('productSearch');
+            
+            // Function to handle search
+            const handleSearch = function(e) {
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                console.log('Search triggered');
+                ensureDatesFilled();
+                searchProducts().catch(error => {
+                    console.error('Search error:', error);
+                    window.isSearching = false;
+                });
+                return false;
+            };
+            
+            // Set up form submission
+            if (searchForm) {
+                searchForm.addEventListener('submit', handleSearch);
+                console.log('Form submit listener attached');
+            } else {
+                console.error('Search form not found!');
+            }
+            
+            // Set up search button click
+            if (searchBtn) {
+                searchBtn.addEventListener('click', handleSearch);
+                console.log('Button click listener attached');
+            } else {
+                console.error('Search button not found!');
+            }
+            
+            // Set up Enter key on input field
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' || e.keyCode === 13) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleSearch(e);
+                    }
+                });
+                console.log('Enter key listener attached');
+            } else {
+                console.error('Search input not found!');
+            }
+            
+            // Clear dates button
+            const clearDatesBtn = document.getElementById('clearDatesBtn');
+            if (clearDatesBtn) {
+                clearDatesBtn.addEventListener('click', function() {
+                    const startDate = document.getElementById('startDate');
+                    const endDate = document.getElementById('endDate');
+                    if (startDate) startDate.value = '';
+                    if (endDate) endDate.value = '';
+                });
+            }
+            
+            // View More/Less Products buttons
+            const viewMoreBtn = document.getElementById('viewMoreBtn');
+            const viewLessBtn = document.getElementById('viewLessBtn');
+            
+            if (viewMoreBtn) {
+                viewMoreBtn.addEventListener('click', function() {
+                    if (window.lastSearchResults) {
+                        displayResults(window.lastSearchResults);
+                    }
+                });
+            }
+            
+            if (viewLessBtn) {
+                viewLessBtn.addEventListener('click', function() {
+                    const productsListSection = document.getElementById('productsListSection');
+                    if (productsListSection) {
+                        productsListSection.classList.add('hidden');
+                    }
+                    if (viewMoreBtn) viewMoreBtn.classList.remove('hidden');
+                    if (viewLessBtn) viewLessBtn.classList.add('hidden');
+                });
+            }
+            
+            console.log('Search functionality initialized');
+        });
+    </script>
+</body>
+</html>

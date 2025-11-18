@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - PriceWar Analytics</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+    <!-- Firebase Auth UI -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="absolute top-0 left-0 w-full bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-blue-600">PriceWar Analytics</a>
+            <div class="hidden md:block">
+                <span class="text-gray-600">Already have an account? </span>
+                <a href="login.html" class="text-blue-600 hover:underline font-medium">Sign in</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="w-full max-w-md p-8 space-y-8 bg-white rounded-xl shadow-md">
+        <div class="text-center">
+            <h1 class="text-3xl font-bold text-gray-900">Create your account</h1>
+            <p class="mt-2 text-gray-600">Start your journey with us today</p>
+        </div>
+
+        <form id="signupForm" class="mt-8 space-y-6">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                    <label for="firstName" class="block text-sm font-medium text-gray-700">First name</label>
+                    <input id="firstName" name="firstName" type="text" autocomplete="given-name" required
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="lastName" class="block text-sm font-medium text-gray-700">Last name</label>
+                    <input id="lastName" name="lastName" type="text" autocomplete="family-name" required
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700">Email address</label>
+                <input id="email" name="email" type="email" autocomplete="email" required
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                <input id="password" name="password" type="password" autocomplete="new-password" required
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                <p class="mt-2 text-sm text-gray-500">Must be at least 8 characters long</p>
+            </div>
+
+            <div>
+                <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" required
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <div class="flex items-start">
+                <div class="flex items-center h-5">
+                    <input id="terms" name="terms" type="checkbox" required
+                        class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                </div>
+                <div class="ml-3 text-sm">
+                    <label for="terms" class="font-medium text-gray-700">I agree to the <a href="#" class="text-blue-600 hover:text-blue-500">Terms of Service</a> and <a href="#" class="text-blue-600 hover:text-blue-500">Privacy Policy</a></label>
+                </div>
+            </div>
+
+            <div>
+                <button type="submit"
+                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Create Account
+                </button>
+            </div>
+        </form>
+        
+        <div class="text-center text-sm mt-4 md:hidden">
+            <p class="text-gray-600">
+                Already have an account?
+                <a href="login.html" class="font-medium text-blue-600 hover:text-blue-500"> Sign in</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAk5R0dWiRAyKdIqa0WnocdqkfhTptSyFk",
+            authDomain: "ads-project-dfd93.firebaseapp.com",
+            projectId: "ads-project-dfd93",
+            storageBucket: "ads-project-dfd93.firebasestorage.app",
+            messagingSenderId: "974516291458",
+            appId: "1:974516291458:web:42734b8547c5c16515719b",
+            measurementId: "G-LVFBBHKGNQ"
+        };
+        
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        // Handle form submission
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const submitButton = document.querySelector('button[type="submit"]');
+            
+            if (password !== confirmPassword) {
+                alert("Passwords don't match!");
+                return;
+            }
+            
+            if (password.length < 8) {
+                alert("Password must be at least 8 characters long!");
+                return;
+            }
+            
+            // Disable button and show loading state
+            submitButton.disabled = true;
+            submitButton.textContent = 'Creating account...';
+            
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Signed up successfully
+                    const user = userCredential.user;
+                    // Add user details to profile
+                    return user.updateProfile({
+                        displayName: firstName + ' ' + lastName
+                    });
+                })
+                .then(() => {
+                    // User profile updated - verify user is authenticated
+                    const currentUser = firebase.auth().currentUser;
+                    if (currentUser && currentUser.uid) {
+                        // User is authenticated - NOW redirect to dashboard
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        throw new Error('Signup completed but authentication verification failed');
+                    }
+                })
+                .catch((error) => {
+                    // Re-enable button
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Create Account';
+                    
+                    // Show error message
+                    let errorMessage = 'An error occurred. Please try again.';
+                    if (error.code === 'auth/email-already-in-use') {
+                        errorMessage = 'This email address is already in use. Please sign in instead.';
+                    } else if (error.code === 'auth/invalid-email') {
+                        errorMessage = 'Invalid email address.';
+                    } else if (error.code === 'auth/weak-password') {
+                        errorMessage = 'Password is too weak. Please use a stronger password.';
+                    } else if (error.message) {
+                        errorMessage = error.message;
+                    }
+                    alert(errorMessage);
+                });
+        });
+
+        // DO NOT auto-redirect on page load
+        // User must manually sign up through the form
+        // Only redirect after successful authentication in the form handlers below
+    </script>
+</body>
+</html>

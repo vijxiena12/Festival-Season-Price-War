@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - PriceWar Analytics</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+    <!-- Firebase Auth UI -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="absolute top-0 left-0 w-full bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-blue-600">PriceWar Analytics</a>
+            <div class="hidden md:block">
+                <span class="text-gray-600">Don't have an account? </span>
+                <a href="signup.html" class="text-blue-600 hover:underline font-medium">Sign up</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="w-full max-w-md p-8 space-y-8 bg-white rounded-xl shadow-md">
+        <div class="text-center">
+            <h1 class="text-3xl font-bold text-gray-900">Welcome back</h1>
+            <p class="mt-2 text-gray-600">Sign in to your account</p>
+        </div>
+
+        <form id="loginForm" class="mt-8 space-y-6">
+            <div class="space-y-4">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email address</label>
+                    <input id="email" name="email" type="email" autocomplete="email" required
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between">
+                        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                        <a href="#" class="text-sm text-blue-600 hover:text-blue-500">Forgot password?</a>
+                    </div>
+                    <input id="password" name="password" type="password" autocomplete="current-password" required
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+
+            <div class="flex items-center">
+                <input id="remember-me" name="remember-me" type="checkbox"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                <label for="remember-me" class="ml-2 block text-sm text-gray-700">
+                    Remember me
+                </label>
+            </div>
+
+            <div>
+                <button type="submit"
+                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Sign in
+                </button>
+            </div>
+        </form>
+
+
+        <div class="text-center text-sm md:hidden">
+            <p class="text-gray-600">
+                Don't have an account?
+                <a href="signup.html" class="font-medium text-blue-600 hover:text-blue-500">Sign up</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAk5R0dWiRAyKdIqa0WnocdqkfhTptSyFk",
+            authDomain: "ads-project-dfd93.firebaseapp.com",
+            projectId: "ads-project-dfd93",
+            storageBucket: "ads-project-dfd93.firebasestorage.app",
+            messagingSenderId: "974516291458",
+            appId: "1:974516291458:web:42734b8547c5c16515719b",
+            measurementId: "G-LVFBBHKGNQ"
+        };
+        
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        // DO NOT auto-redirect on page load
+        // User must manually sign in through the form
+        // Only redirect after successful authentication in the form handlers below
+
+        // Handle form submission
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const submitButton = document.querySelector('button[type="submit"]');
+            
+            // Disable button and show loading state
+            submitButton.disabled = true;
+            submitButton.textContent = 'Signing in...';
+            
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Signed in successfully - verify user is authenticated
+                    if (userCredential && userCredential.user && userCredential.user.uid) {
+                        // User is authenticated - NOW redirect to dashboard
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        throw new Error('Authentication failed');
+                    }
+                })
+                .catch((error) => {
+                    // Re-enable button
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Sign in';
+                    
+                    // Show error message
+                    let errorMessage = 'An error occurred. Please try again.';
+                    if (error.code === 'auth/user-not-found') {
+                        errorMessage = 'No account found with this email address.';
+                    } else if (error.code === 'auth/wrong-password') {
+                        errorMessage = 'Incorrect password. Please try again.';
+                    } else if (error.code === 'auth/invalid-email') {
+                        errorMessage = 'Invalid email address.';
+                    } else if (error.code === 'auth/user-disabled') {
+                        errorMessage = 'This account has been disabled.';
+                    } else if (error.message) {
+                        errorMessage = error.message;
+                    }
+                    alert(errorMessage);
+                });
+        });
+
+        // Google Sign In with Popup
+        function signInWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            // Add any additional scopes you need
+            provider.addScope('profile');
+            provider.addScope('email');
+            
+            // Sign in with popup
+            firebase.auth()
+                .signInWithPopup(provider)
+                .then((result) => {
+                    // User signed in successfully
+                    if (result && result.user && result.user.uid) {
+                        // User is authenticated - redirect to dashboard
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        throw new Error('Google authentication failed - no user returned');
+                    }
+                })
+                .catch((error) => {
+                    console.error('Google sign in error:', error);
+                    let errorMessage = 'An error occurred during Google sign in. Please try again.';
+                    
+                    // Handle specific error cases
+                    if (error.code === 'auth/account-exists-with-different-credential') {
+                        errorMessage = 'An account already exists with the same email but different sign-in credentials.';
+                    } else if (error.code === 'auth/popup-closed-by-user') {
+                        // User closed the popup, no need to show an error
+                        return;
+                    } else if (error.message) {
+                        errorMessage = error.message;
+                    }
+                    
+                    alert(errorMessage);
+                });
+        }
+    </script>
+</body>
+</html>

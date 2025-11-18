@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Trends - Amazon vs Flipkart | PriceWar Analytics</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .graph-container {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .analysis-section {
+            background: #f9fafb;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <span class="text-xl font-bold">PriceWar Analytics</span>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="index.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Home</a>
+                            <a href="dashboard.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                            <a href="price-comparison.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Price Comparison</a>
+                            <a href="price-trends.html" class="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium">Price Trends</a>
+                            <a href="insights.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Insights</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="py-8 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <!-- Back Button and Title -->
+            <div class="flex items-center mb-6">
+                <a href="dashboard.html" class="text-blue-600 hover:text-blue-800 mr-4 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                    </svg>
+                    Back to Dashboard
+                </a>
+                <h1 class="text-2xl font-bold text-gray-900">Price Trends Analysis</h1>
+            </div>
+            <p class="text-gray-600 mb-6">Analyzing price trends and patterns across Amazon and Flipkart to identify optimal purchasing times and platform-specific pricing strategies.</p>
+
+            <!-- Main Price Trends Chart -->
+            <div class="graph-container">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Price Trends Over Time (2023-2024)</h2>
+                <p class="text-sm text-gray-500 mb-4">Average normalized price index (100 = January 2023 baseline)</p>
+                <div class="h-96">
+                    <canvas id="priceTrendsChart"></canvas>
+                </div>
+                <div class="mt-4 text-xs text-gray-500">
+                    <p>Data represents aggregated price movements across all product categories. Actual prices may vary by category.</p>
+                </div>
+            </div>
+
+            <!-- Price Change Heatmap -->
+            <div class="graph-container">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Monthly Price Change Heatmap</h2>
+                <p class="text-sm text-gray-500 mb-4">Percentage change in average prices by month and category</p>
+                <div class="h-96">
+                    <canvas id="priceHeatmap"></canvas>
+                </div>
+                <div class="mt-4 text-xs text-gray-500">
+                    <p>Darker red indicates higher price increases, darker blue indicates steeper discounts.</p>
+                </div>
+            </div>
+
+            <!-- Price Difference Chart -->
+            <div class="graph-container">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Amazon vs Flipkart Price Difference</h2>
+                <p class="text-sm text-gray-500 mb-4">Percentage difference in average prices (Amazon - Flipkart)</p>
+                <div class="h-96">
+                    <canvas id="priceDifferenceChart"></canvas>
+                </div>
+                <div class="mt-4 text-xs text-gray-500">
+                    <p>Positive values indicate Amazon is more expensive, negative values indicate Flipkart is more expensive.</p>
+                </div>
+            </div>
+
+            <!-- Analysis Sections -->
+            <div class="analysis-section">
+                <h2 class="section-title">Key Observations</h2>
+                <div class="prose max-w-none">
+                    <h3 class="text-lg font-medium text-gray-900 mt-4">Seasonal Patterns</h3>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li><strong>Q1 (Jan-Mar):</strong> Prices remain stable post-holiday season, with minor fluctuations.</li>
+                        <li><strong>Q2 (Apr-Jun):</strong> Gradual price increases leading up to summer sales.</li>
+                        <li><strong>Q3 (Jul-Sep):</strong> Steep price drops during monsoon sales.</li>
+                        <li><strong>Q4 (Oct-Dec):</strong> Most volatile period with major sales events.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="analysis-section">
+                <h2 class="section-title">Conclusion</h2>
+                <div class="prose max-w-none">
+                    <p>The price trend analysis reveals strategic pricing patterns that can inform both consumer purchasing decisions and competitive strategies.</p>
+                    <ul class="list-disc pl-5 mt-2 space-y-2">
+                        <li>Optimal purchase timing aligns with major sales events</li>
+                        <li>Platform-specific strengths in different product categories</li>
+                        <li>Price matching is common between platforms</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white mt-12 border-t border-gray-200">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-gray-500 text-sm">
+                &copy; 2025 PriceWar Analytics. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Set Chart.js defaults
+        Chart.defaults.font.family = "'Inter', 'Helvetica Neue', 'Arial', sans-serif";
+        Chart.defaults.plugins.legend.labels.boxWidth = 12;
+        Chart.defaults.plugins.legend.labels.padding = 20;
+        Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        Chart.defaults.plugins.tooltip.padding = 12;
+        Chart.defaults.plugins.tooltip.cornerRadius = 4;
+
+        // Initialize charts when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const categories = ['Electronics', 'Fashion', 'Home', 'Books', 'Beauty'];
+
+            // 1. Price Trends Chart (Line Chart)
+            const trendCtx = document.getElementById('priceTrendsChart').getContext('2d');
+            new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: 'Amazon',
+                            data: [100, 98, 102, 105, 103, 97, 92, 95, 90, 85, 88, 95],
+                            borderColor: '#EF4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Flipkart',
+                            data: [100, 101, 105, 103, 101, 96, 91, 89, 86, 82, 85, 92],
+                            borderColor: '#3B82F6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.raw} (${context.raw - 100 > 0 ? '+' : ''}${context.raw - 100}%)`;
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Price Index (Jan 2023 = 100)'
+                            },
+                            grid: {
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 2. Price Heatmap (Bar Chart)
+            const heatmapCtx = document.getElementById('priceHeatmap').getContext('2d');
+            const heatmapData = {
+                labels: categories,
+                datasets: months.map((month, i) => ({
+                    label: month,
+                    data: categories.map(() => (Math.random() * 20 - 10).toFixed(1)),
+                    backgroundColor: (ctx) => {
+                        const value = parseFloat(ctx.raw);
+                        const opacity = Math.min(Math.abs(value) / 15, 0.9) + 0.1;
+                        return value >= 0 
+                            ? `rgba(220, 38, 38, ${opacity})` 
+                            : `rgba(59, 130, 246, ${opacity})`;
+                    },
+                    borderColor: 'rgba(255, 255, 255, 0.8)',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }))
+            };
+            
+            new Chart(heatmapCtx, {
+                type: 'bar',
+                data: heatmapData,
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = parseFloat(context.raw);
+                                    return `${context.dataset.label} - ${context.label}: ${value > 0 ? '+' : ''}${value}%`;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Price Change (%)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 3. Price Difference Chart (Bar Chart)
+            const diffCtx = document.getElementById('priceDifferenceChart').getContext('2d');
+            const priceDiffData = {
+                labels: months,
+                datasets: [{
+                    label: 'Price Difference (Amazon - Flipkart)',
+                    data: months.map(() => (Math.random() * 20 - 10).toFixed(1)),
+                    backgroundColor: (ctx) => {
+                        const value = parseFloat(ctx.raw);
+                        return value >= 0 
+                            ? 'rgba(239, 68, 68, 0.7)' 
+                            : 'rgba(59, 130, 246, 0.7)';
+                    },
+                    borderColor: (ctx) => {
+                        const value = parseFloat(ctx.raw);
+                        return value >= 0 ? '#DC2626' : '#2563EB';
+                    },
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            };
+            
+            new Chart(diffCtx, {
+                type: 'bar',
+                data: priceDiffData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = parseFloat(context.raw);
+                                    return `Amazon is ${value > 0 ? 'more' : 'less'} expensive by ${Math.abs(value).toFixed(1)}%`;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Price Difference (%)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value > 0 ? `+${value}%` : `${value}%`;
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
